@@ -8,9 +8,16 @@ export default defineConfig({
   base: '',
   plugins: [react()],
   resolve: {
-    alias: {
-      '@jswork/antd-form-schema': resolve(__dirname, '../lib/src/index.tsx'),
-    },
+    alias: [
+      {
+        find: /^@jswork\/antd-form-schema$/,
+        replacement: resolve(__dirname, '../lib/src/index.tsx'),
+      },
+      {
+        find: /^@jswork\/antd-form-schema\/style\.css$/,
+        replacement: resolve(__dirname, '../lib/src/style.css'),
+      },
+    ],
   },
   define: {
     BUILD_TIME: JSON.stringify(sdf('datetime')),
