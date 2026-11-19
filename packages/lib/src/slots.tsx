@@ -1,0 +1,43 @@
+import { Form } from 'antd';
+import type { Slot } from '@jswork/react-list';
+import type { ReactNode } from 'react';
+import type { BoundField, FormItemProps } from './types';
+
+export type FieldCtx = { field: BoundField };
+
+/** Component-level slots for the four parts of a rendered field. */
+export interface FormSlots {
+  label?: Slot<FieldCtx>;
+  field?: Slot<FieldCtx & { children: ReactNode }>;
+  control?: Slot<FieldCtx & { control: ReactNode; itemProps: FormItemProps }>;
+  error?: Slot<FieldCtx & { errors: string[] }>;
+}
+
+export type LabelProps = FieldCtx & { className?: string };
+export type FieldProps = FieldCtx & { children: ReactNode; className?: string };
+export type ControlProps = FieldCtx & { control: ReactNode; itemProps: FormItemProps; className?: string };
+export type ErrorProps = FieldCtx & { errors: string[] };
+
+/** Default label: mirrors the previous className-driven label markup. */
+export const renderLabel = ({ field, className }: LabelProps) => (
+  <label className={className}>
+    {field.label}
+    {field.required && <span aria-hidden="true"> *</span>}
+  </label>
+);
+
+/** Default field wrapper: mirrors the previous className-driven item div. */
+export const renderField = ({ children, className }: FieldProps) => <div className={className}>{children}</div>;
+
+/** Default control: binding only (`noStyle`); errors are rendered by the error part. */
+export const renderControl = ({ control, itemProps, className }: ControlProps) => (
+  <div className={className}>
+    <Form.Item {...itemProps} noStyle>
+      {control}
+    </Form.Item>
+  </div>
+);
+
+/** Default error: simple alert text, no antd style classes. */
+export const renderError = ({ errors }: ErrorProps) =>
+  errors.length > 0 ? <div role="alert">{errors.join(', ')}</div> : null;

@@ -57,5 +57,8 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "@jswork/react-list": "^2.0.18"
   }
 }
