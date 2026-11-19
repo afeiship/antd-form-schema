@@ -1,0 +1,152 @@
+import type { ComponentType, ReactNode } from 'react';
+import type { FormInstance, FormItemProps } from 'antd';
+import type { Rule } from 'antd/es/form';
+import type { NamePath } from 'antd/es/form/interface';
+
+export type { NamePath, FormInstance, FormItemProps, Rule };
+
+/** widget: string id (lookup in WIDGETS / widgets prop) or a component escape hatch. */
+export type Widget = string | ComponentType<any>;
+
+/** options in three shapes: plain string, [value,label] tuple, or full object. */
+export type OptionInput =
+  | string
+  | [any, ReactNode]
+  | { value: any; label?: ReactNode; disabled?: boolean; key?: any };
+
+export interface NormalizedOption {
+  value: any;
+  label?: ReactNode;
+  disabled?: boolean;
+  key?: any;
+}
+
+/** Field contract: no layout or style keys. */
+export interface FieldSchema {
+  /** Unique id; without explicit name, split on '.' into a NamePath. */
+  key: string;
+  /** Data path; overrides key derivation. Use '!!!' prefix when the field name itself contains a dot. */
+  name?: NamePath;
+  /** Widget id, defaults to 'input'. */
+  widget?: Widget;
+  /** View-mode widget, defaults to 'span' (read-only text). */
+  viewWidget?: Widget;
+  /** Props passed to the widget, e.g. { mode: 'multiple' }. */
+  widgetProps?: Record<string, any>;
+  label?: ReactNode;
+  placeholder?: string;
+  options?: OptionInput[];
+  /** Required shortcut, converted to a required rule during normalize. */
+  required?: boolean;
+  /** Native antd validation rules, forwarded to Form.Item as-is. */
+  rules?: Rule[];
+  /** Declarative condition (recommended) or function escape hatch. */
+  condition?: Condition | ConditionFn;
+  initialValue?: any;
+  disabled?: boolean;
+  readOnly?: boolean;
+  /** Field-level view mode overrides form-level. */
+  viewMode?: boolean;
+  /** Dependencies explicitly declared for function conditions (used by auto watch). */
+  watch?: NamePath[];
+  /** Native antd linkage, forwarded as-is. */
+  dependencies?: NamePath[];
+  shouldUpdate?: FormItemProps['shouldUpdate'];
+  valuePropName?: string;
+}
+
+/** Form contract: no layout or style keys. */
+export interface FormSchema {
+  name?: string;
+  version?: string;
+  viewMode?: boolean;
+  disabled?: boolean;
+  initialValues?: Record<string, any>;
+  fields: FieldSchema[];
+}
+
+/** Declarative condition operators. */
+export type CompareOp =
+  | 'eq'
+  | 'ne'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'in'
+  | 'nin'
+  | 'empty'
+  | 'notEmpty'
+  | 'includes';
+
+export interface CompareCondition {
+  field: NamePath;
+  op: CompareOp;
+  value?: any;
+}
+
+export interface LogicCondition {
+  and?: Condition[];
+  or?: Condition[];
+  not?: Condition;
+}
+
+export type Condition = CompareCondition | LogicCondition;
+
+export type ConditionFn = (ctx: { form: FormInstance; values: Record<string, any> }) => boolean;
+
+export interface WidgetDef {
+  component: ComponentType<any>;
+  /** Converts a field into widget / Form.Item props. */
+  metaConverter?: (ctx: { field: FieldSchema; meta: FormSchema }) => Partial<FieldSchema>;
+}
+
+export interface UseFormSchemaOptions {
+  /** Local widget registrations / overrides, taking precedence over builtin widgets. */
+  widgets?: Record<string, WidgetDef>;
+  /** Meta validation switch, enabled in development by default. */
+  validate?: boolean;
+}
+
+export interface BoundField {
+  key: string;
+  name: NamePath;
+  widget: string | Widget;
+  label?: ReactNode;
+  placeholder?: string;
+  options?: NormalizedOption[];
+  required?: boolean;
+  viewMode: boolean;
+  disabled?: boolean;
+  /** Condition result: false means the field should not be rendered. */
+  visible: boolean;
+  /** Data binding props only: name / rules / valuePropName / dependencies / shouldUpdate. */
+  itemProps: FormItemProps;
+  control: ReactNode;
+  controlProps: Record<string, any>;
+  WidgetComponent?: ComponentType<any>;
+  viewContent?: ReactNode;
+}
+
+export interface Issue {
+  level: 'error' | 'warning';
+  message: string;
+  field?: string;
+  index?: number;
+}
+
+export interface UseFormSchemaResult {
+  fields: BoundField[];
+  visibleFields: BoundField[];
+  getField(key: string): BoundField | undefined;
+  issues: Issue[];
+}
+
+export type NormalizedField = FieldSchema & {
+  name: NamePath;
+  options: NormalizedOption[];
+  rules: Rule[];
+  disabled: boolean;
+};
+
+export type NormalizedMeta = Omit<FormSchema, 'fields'> & { fields: NormalizedField[] };
