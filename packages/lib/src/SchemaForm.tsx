@@ -4,10 +4,12 @@ import type { FC, ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
 import SchemaFields from './SchemaFields';
 import type { SchemaFieldsProps } from './SchemaFields';
+import type { FormSlots } from './slots';
 
 export interface SchemaFormProps extends Omit<FormProps, 'form' | 'initialValues'>, SchemaFieldsProps {
   onFormReady?: (form: FormInstance) => void;
   children?: ReactNode;
+  slots?: FormSlots;
 }
 
 /** One-line form: creates its own Form instance and seeds it from meta.initialValues. */
@@ -18,6 +20,7 @@ const SchemaForm: FC<SchemaFormProps> = ({
   itemClassName,
   labelClassName,
   controlClassName,
+  slots,
   onFormReady,
   children,
   ...rest
@@ -40,6 +43,7 @@ const SchemaForm: FC<SchemaFormProps> = ({
         itemClassName={itemClassName}
         labelClassName={labelClassName}
         controlClassName={controlClassName}
+        slots={slots}
       />
       {children}
     </Form>

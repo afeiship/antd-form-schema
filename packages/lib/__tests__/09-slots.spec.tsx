@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { Form } from 'antd';
-import { SchemaFields } from '../src';
+import { SchemaFields, SchemaForm } from '../src';
 import type { BoundField } from '../src/types';
 
 describe('SchemaFields slots', () => {
@@ -115,5 +115,11 @@ describe('SchemaFields slots', () => {
     fireEvent.click(screen.getByText('Go'));
     await waitFor(() => expect(ErrorView).toHaveBeenCalled());
     expect(screen.getByTestId('err').textContent).toMatch(/required/i);
+  });
+
+  it('passes slots through SchemaForm', () => {
+    const Label = () => <b data-testid="slot-label">SLOT</b>;
+    render(<SchemaForm meta={{ fields: [{ key: 'name', label: 'Name', widget: 'input' }] }} slots={{ label: Label }} />);
+    expect(screen.getByTestId('slot-label')).toBeInTheDocument();
   });
 });

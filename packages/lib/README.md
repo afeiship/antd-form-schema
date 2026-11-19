@@ -107,6 +107,38 @@ const [form] = Form.useForm();
 
 > **Breaking change:** the default export is now an alias of `FormFields` (previously an empty scaffold `div` component). Named exports are the primary API.
 
+## slots
+
+`SchemaForm` and `SchemaFields` render each field from four replaceable parts (`slots` is a component prop, never a schema key):
+
+- `label` — the field label
+- `field` — the wrapper around one field's whole body
+- `control` — the value-bound control area
+- `error` — validation messages
+
+Every slot accepts three shapes: a component, a ReactNode, or `{ component, props }`. Runtime context (`field`, and the part's own props) is passed to the component; a ReactNode is rendered as-is.
+
+```tsx
+import { Form } from 'antd';
+import { SchemaForm } from '@jswork/antd-form-schema';
+import type { FormSlots } from '@jswork/antd-form-schema';
+
+const slots: FormSlots = {
+  label: ({ field }) => <label>{field.label}</label>,
+  control: ({ control, itemProps }) => (
+    <div className="flex items-center gap-2">
+      <Form.Item {...itemProps} noStyle>{control}</Form.Item>
+      <span>USD</span>
+    </div>
+  ),
+  error: ({ errors }) => (errors.length ? <p className="text-red-500">{errors.join(', ')}</p> : null),
+};
+
+<SchemaForm meta={meta} slots={slots} />;
+```
+
+Only replace the parts you need — any slot you omit falls back to its default renderer, so behavior (including validation errors) is unchanged when `slots` is not provided. Custom slots own their markup and classes; the four `className` props still style only the default renderers.
+
 ## widget override & conditions
 Pass a `widgets` map to `useFormSchema` to register or override widget ids. A widget is a string id or a component escape hatch:
 
@@ -131,7 +163,7 @@ Conditions can be declarative or a function with auto watch paths:
 ```
 
 ## exports
-Named: `useFormSchema`, `FormFields`, `validateMeta`, `normalizeMeta`, `evaluateCondition`, `collectWatchPaths` and all types from `types.ts`.
+Named: `useFormSchema`, `FormFields`, `SchemaFields`, `SchemaForm`, `validateMeta`, `normalizeMeta`, `evaluateCondition`, `collectWatchPaths`, type `FormSlots` and all types from `types.ts`.
 Default: `AntdFormSchema` = `FormFields` (with `version`), kept for scaffold compatibility.
 
 ## license

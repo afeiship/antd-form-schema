@@ -20,6 +20,7 @@ pnpm add @jswork/antd-form-schema
   import ConditionalForm from './components/conditional-form';
   import StepForm from './components/step-form';
   import SchemaFormDemo from './components/schema-form-demo';
+  import SlotsDemo from './components/slots-demo';
 
   const demos = [
     { key: 'basic-grid', title: 'Basic Grid', Component: BasicGrid },
@@ -29,6 +30,7 @@ pnpm add @jswork/antd-form-schema
     { key: 'view-edit', title: 'View / Edit', Component: ViewEdit },
     { key: 'conditional', title: 'Conditional', Component: ConditionalForm },
     { key: 'step-form', title: 'Step Form', Component: StepForm },
+    { key: 'slots', title: 'Slots', Component: SlotsDemo },
   ];
 
   function App() {
