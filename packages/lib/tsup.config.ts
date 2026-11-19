@@ -16,8 +16,6 @@ export default defineConfig({
   target: 'es6',
   bundle: true,
   define: { __VERSION__: JSON.stringify(pkg.version) },
-  footer: ({ format }) =>
-    format === 'cjs' ? { js: 'module.exports = module.exports.default;' } : {},
   esbuildPlugins: [
     // CSS compiled with Lightning CSS in the same build (minify + targets + nesting)
     lightningCssPlugin({
