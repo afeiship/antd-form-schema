@@ -1,45 +1,47 @@
-# rails-module-paginator
-> Rails module for paginator based on kaminari.
+# antd-form-schema
+> A tiny headless schema renderer for Ant Design form fields and rules.
 
-## Step by step:
-+ Add gem to Gemfile:
-```bash
-# gem 'kaminari'
-bundle install
+[![version][version-image]][version-url]
+[![license][license-image]][license-url]
+[![download][download-image]][download-url]
+
+## installation
+```shell
+pnpm add @jswork/antd-form-schema
 ```
 
-+ scaffold Controller & model & views:
-```bash
-rails generate scaffold Post name:string title:string content:text
-```
+## usage
+  ```js
+  import AntdFormSchema from '@jswork/antd-form-schema';
+  import '@jswork/antd-form-schema/style.css';
 
-## resouces:
-+ https://github.com/kaminari/kaminari
+  function App() {
+    return (
+      <div className="m-10 p-4 shadow bg-gray-100 text-gray-800 hover:shadow-md transition-all">
+        <div className="badge badge-warning absolute right-0 top-0 m-4">
+          Build Time: {BUILD_TIME}
+        </div>
+        <AntdFormSchema className="debug-red">
+          abc
+        </AntdFormSchema>
+      </div>
+    );
+  }
 
-+ config your paginator:
-```bash
-rails g kaminari:config
-# create  config/initializers/kaminari_config.rb
-# config this file: kaminari_config.rb
-```
+  export default App;
+  ```
 
-+ i18n to zh.yml
-```yaml
-en:
-  views:
-    pagination:
-      first: "&laquo; First"
-      last: "Last &raquo;"
-      previous: "&lsaquo; Prev"
-      next: "Next &rsaquo;"
-      truncate: "&hellip;"
-  helpers:
-    page_entries_info:
-      one_page:
-        display_entries:
-          zero: "No %{entry_name} found"
-          one: "Displaying <b>1</b> %{entry_name}"
-          other: "Displaying <b>all %{count}</b> %{entry_name}"
-      more_pages:
-        display_entries: "Displaying %{entry_name} <b>%{first}&nbsp;-&nbsp;%{last}</b> of <b>%{total}</b> in total"
-```
+## preview
+- https://afeiship.github.io/antd-form-schema/
+
+## license
+Code released under [the MIT license](https://github.com/afeiship/antd-form-schema/blob/master/LICENSE.txt).
+
+[version-image]: https://img.shields.io/npm/v/@jswork/antd-form-schema
+[version-url]: https://npmjs.org/package/@jswork/antd-form-schema
+
+[license-image]: https://img.shields.io/npm/l/@jswork/antd-form-schema
+[license-url]: https://github.com/afeiship/antd-form-schema/blob/master/LICENSE.txt
+
+[download-image]: https://img.shields.io/npm/dm/@jswork/antd-form-schema
+[download-url]: https://www.npmjs.com/package/@jswork/antd-form-schema

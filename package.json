@@ -1,0 +1,23 @@
+{
+  "name": "@jswork/antd-form-schema",
+  "version": "1.0.0",
+  "description": "A tiny headless schema renderer for Ant Design form fields and rules.",
+  "homepage": "https://js.work",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter example dev",
+    "docs": "node scripts/markdown.js",
+    "test": "pnpm --filter @jswork/antd-form-schema test",
+    "build": "pnpm run docs && pnpm --filter @jswork/antd-form-schema build",
+    "release": "pnpm --filter @jswork/antd-form-schema release"
+  },
+  "devDependencies": {
+    "@jswork/next": "^1.2.2",
+    "@jswork/next-replace-in-file": "^1.0.0",
+    "indent-string": "^5.0.0"
+  }
+}
