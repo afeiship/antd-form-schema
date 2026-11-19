@@ -1,8 +1,8 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { Form } from 'antd';
-import { SchemaFields } from '../src';
+import { SchemaFields, SchemaForm } from '../src';
 import type { FormSchema } from '../src/types';
 
 describe('SchemaFields', () => {
@@ -46,5 +46,48 @@ describe('SchemaFields', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => render(<SchemaFields meta={{ fields: [] }} />)).toThrow(/must be used inside/i);
     consoleError.mockRestore();
+  });
+});
+
+describe('SchemaForm', () => {
+  it('creates an internal form and applies meta.initialValues', () => {
+    render(
+      <SchemaForm
+        meta={{
+          initialValues: { name: 'Alice' },
+          fields: [{ key: 'name', label: 'Name', widget: 'input' }],
+        }}
+      >
+        <button type="submit">Submit</button>
+      </SchemaForm>,
+    );
+    expect((document.querySelector('.ant-input') as HTMLInputElement).value).toBe('Alice');
+  });
+
+  it('shows validation errors (Form.Item is not noStyle)', async () => {
+    render(
+      <SchemaForm meta={{ fields: [{ key: 'name', label: 'Name', required: true, widget: 'input' }] }}>
+        <button type="submit">Submit</button>
+      </SchemaForm>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    expect(await screen.findByText(/required/i)).toBeInTheDocument();
+  });
+
+  it('calls onFormReady once with the internal form instance', () => {
+    const onFormReady = vi.fn();
+    const { rerender } = render(<SchemaForm meta={{ fields: [] }} onFormReady={onFormReady} />);
+    rerender(<SchemaForm meta={{ fields: [] }} onFormReady={onFormReady} />);
+    expect(onFormReady).toHaveBeenCalledTimes(1);
+    expect(onFormReady.mock.calls[0][0]).toHaveProperty('getFieldsValue');
+  });
+
+  it('renders children after the field grid', () => {
+    render(
+      <SchemaForm meta={{ fields: [{ key: 'name', label: 'Name', widget: 'input' }] }} className="grid-cls">
+        <button type="submit">Go</button>
+      </SchemaForm>,
+    );
+    expect(document.querySelector('.grid-cls')?.nextElementSibling).toHaveTextContent('Go');
   });
 });

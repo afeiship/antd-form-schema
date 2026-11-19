@@ -1,6 +1,7 @@
 export { useFormSchema } from './useFormSchema';
 export { default as FormFields } from './FormFields';
 export { default as SchemaFields } from './SchemaFields';
+export { default as SchemaForm } from './SchemaForm';
 export { validateMeta } from './validate';
 export { normalizeMeta } from './normalize';
 export { evaluateCondition, collectWatchPaths } from './condition';
