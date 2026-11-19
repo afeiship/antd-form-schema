@@ -63,7 +63,7 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
 
         return slots?.field
           ? renderSlot(slots.field, { field, children: body }, field.key)
-          : renderField({ field, children: body, className: itemClassName });
+          : renderField({ field, children: body, className: itemClassName, key: field.key });
       })}
     </div>
   );

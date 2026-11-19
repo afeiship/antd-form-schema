@@ -1,6 +1,6 @@
 import { Form } from 'antd';
 import type { Slot } from '@jswork/react-list';
-import type { ReactNode } from 'react';
+import type { Key, ReactNode } from 'react';
 import type { BoundField, FormItemProps } from './types';
 
 export type FieldCtx = { field: BoundField };
@@ -14,7 +14,7 @@ export interface FormSlots {
 }
 
 export type LabelProps = FieldCtx & { className?: string };
-export type FieldProps = FieldCtx & { children: ReactNode; className?: string };
+export type FieldProps = FieldCtx & { children: ReactNode; className?: string; key?: Key };
 export type ControlProps = FieldCtx & { control: ReactNode; itemProps: FormItemProps; className?: string };
 export type ErrorProps = FieldCtx & { errors: string[] };
 
@@ -27,7 +27,11 @@ export const renderLabel = ({ field, className }: LabelProps) => (
 );
 
 /** Default field wrapper: mirrors the previous className-driven item div. */
-export const renderField = ({ children, className }: FieldProps) => <div className={className}>{children}</div>;
+export const renderField = ({ children, className, key }: FieldProps) => (
+  <div className={className} key={key}>
+    {children}
+  </div>
+);
 
 /** Default control: binding only (`noStyle`); errors are rendered by the error part. */
 export const renderControl = ({ control, itemProps, className }: ControlProps) => (
