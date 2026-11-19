@@ -6,7 +6,7 @@ import type { FormSchema, BoundField } from '@jswork/antd-form-schema';
 const meta: FormSchema = {
   initialValues: { step: 1, name: '', email: '' },
   fields: [
-    { key: 'step', widget: 'input', initialValue: 1 },
+    { key: 'step', widget: 'input' },
     {
       key: 'name',
       label: '姓名',

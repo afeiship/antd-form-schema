@@ -78,6 +78,8 @@ export const ViewSpan: FC<{ initialValue?: any; options?: NormalizedOption[]; va
       ? current.map(labelOf).join(', ')
       : labelOf(current);
   }
+  // React omits boolean children, so render true/false explicitly.
+  if (typeof content === 'boolean') content = String(content);
   return <span>{content}</span>;
 };
 

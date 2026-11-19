@@ -4,6 +4,7 @@ import type { FormSchema, WidgetDef } from '@jswork/antd-form-schema';
 
 /** Overriding a builtin widget with a new local id requires no library changes. */
 const radioButton: WidgetDef = { component: Radio.Group };
+const widgets = { 'radio-button': radioButton };
 
 const meta: FormSchema = {
   fields: [
@@ -30,9 +31,7 @@ const meta: FormSchema = {
 /** PRD §10.3: swap `select` for a button-style Radio.Group in JSX and register a new widget id. */
 export default function CustomWidget() {
   const [form] = Form.useForm();
-  const { visibleFields } = useFormSchema(meta, form, {
-    widgets: { 'radio-button': radioButton },
-  });
+  const { visibleFields } = useFormSchema(meta, form, { widgets });
 
   return (
     <Form

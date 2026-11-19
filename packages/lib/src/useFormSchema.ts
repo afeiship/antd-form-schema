@@ -1,5 +1,5 @@
 import { Form } from 'antd';
-import { createElement } from 'react';
+import { createElement, useMemo } from 'react';
 import { getItemProps, getControlProps } from './bind';
 import { evaluateCondition } from './condition';
 import { normalizeMeta } from './normalize';
@@ -15,7 +15,8 @@ import type {
   UseFormSchemaResult,
 } from './types';
 
-const isDev = process.env.NODE_ENV !== 'production';
+// Bundler-safe: `process` is absent in browsers/runtimes that do not shim it.
+const isDev = typeof process === 'undefined' || process.env.NODE_ENV !== 'production';
 
 /** Single hook entry: subscribes to all form changes, derives bindable fields from the schema. */
 export function useFormSchema(
@@ -23,18 +24,23 @@ export function useFormSchema(
   form: FormInstance,
   options?: UseFormSchemaOptions,
 ): UseFormSchemaResult {
-  const issues: Issue[] = [];
-  if (options?.validate !== false && isDev) {
-    const mergedWidgets = { ...WIDGETS, ...options?.widgets };
-    issues.push(...validateMeta(meta, mergedWidgets));
-    for (const issue of issues) {
-      console.warn(issue.message);
+  const validate = options?.validate;
+  const widgets = options?.widgets;
+  const issues: Issue[] = useMemo(() => {
+    const found: Issue[] = [];
+    if (validate !== false && isDev) {
+      const mergedWidgets = { ...WIDGETS, ...widgets };
+      found.push(...validateMeta(meta, mergedWidgets));
+      for (const issue of found) {
+        console.warn(issue.message);
+      }
+      const unregistered = found.find((issue) => issue.message.startsWith('unregistered widget '));
+      if (unregistered) {
+        throw new Error(unregistered.message);
+      }
     }
-    const unregistered = issues.find((issue) => issue.message.startsWith('unregistered widget '));
-    if (unregistered) {
-      throw new Error(unregistered.message);
-    }
-  }
+    return found;
+  }, [meta, validate, widgets]);
 
   const normalized = normalizeMeta(meta);
   // Watch-all is intentional: useWatch returns only a rerender trigger, values are read fresh below.
@@ -77,6 +83,7 @@ export function useFormSchema(
       itemProps,
       control,
       controlProps,
+      initialValue: converted.initialValue,
       WidgetComponent,
       viewContent: isView ? control : undefined,
     };

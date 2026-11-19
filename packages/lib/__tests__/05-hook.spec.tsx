@@ -1,5 +1,5 @@
 import { Form } from 'antd';
-import { act, render, renderHook } from '@testing-library/react';
+import { act, fireEvent, render, renderHook } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { useEffect } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -142,6 +142,21 @@ describe('useFormSchema: conditional visibility', () => {
   });
 });
 
+describe('useFormSchema: BoundField passthrough', () => {
+  it('surfaces field.initialValue on BoundField but not in itemProps', () => {
+    const meta: FormSchema = {
+      fields: [{ key: 'rating', initialValue: 3, required: true }],
+    };
+    let captured!: Captured;
+    render(<Harness meta={meta} capture={(value) => { captured = value; }} />);
+
+    const field = captured.result.getField('rating')!;
+    expect(field.initialValue).toBe(3);
+    expect(field.itemProps).not.toHaveProperty('initialValue');
+    expect(captured.form.getFieldValue('rating')).toBeUndefined();
+  });
+});
+
 describe('useFormSchema: dev validation', () => {
   it('exposes issues and warns in development', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -155,6 +170,55 @@ describe('useFormSchema: dev validation', () => {
     ]);
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
+  });
+
+  it('validates once per schema identity, not on every form-value rerender', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const meta: FormSchema = {
+      fields: [
+        { key: 'name' },
+        { key: 'ghost-check', condition: { field: 'ghost', op: 'eq', value: 1 } },
+      ],
+    };
+    let captured!: Captured;
+    const { container } = render(<Harness meta={meta} capture={(value) => { captured = value; }} />);
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    const issuesRef = captured.result.issues;
+
+    const input = container.querySelector('#name') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'typed' } });
+
+    expect(captured.result.issues).toBe(issuesRef);
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
+  });
+
+  it('skips validation and does not throw for unregistered widgets in production', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.resetModules();
+    try {
+      const { useFormSchema: prodHook } = await import('../src/useFormSchema');
+      renderHook(() => {
+        const [form] = Form.useForm();
+        const result = prodHook(
+          {
+            fields: [
+              { key: 'x', widget: 'mystery' },
+              { key: 'ghost-check', condition: { field: 'ghost', op: 'eq', value: 1 } },
+            ],
+          },
+          form,
+        );
+        expect(result.issues).toEqual([]);
+      });
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+      vi.resetModules();
+      warn.mockRestore();
+    }
   });
 
   it('throws in development for an unregistered widget', () => {

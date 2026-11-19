@@ -96,6 +96,14 @@ describe('ViewSpan', () => {
     expect(screen.getByText('42')).toBeInTheDocument();
   });
 
+  it('renders boolean values as text instead of omitting them', () => {
+    const { container, rerender } = render(<ViewSpan initialValue={false} />);
+    expect(screen.getByText('false')).toBeInTheDocument();
+    expect(container.textContent).toBe('false');
+    rerender(<ViewSpan initialValue={true} />);
+    expect(screen.getByText('true')).toBeInTheDocument();
+  });
+
   it('renders empty for null or undefined', () => {
     const { container, rerender } = render(<ViewSpan initialValue={null} />);
     expect(container.textContent).toBe('');

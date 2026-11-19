@@ -118,6 +118,8 @@ export interface BoundField {
   required?: boolean;
   viewMode: boolean;
   disabled?: boolean;
+  /** Field-level initialValue as passthrough data; the hook never seeds form state with it. */
+  initialValue?: any;
   /** Condition result: false means the field should not be rendered. */
   visible: boolean;
   /** Data binding props only: name / rules / valuePropName / dependencies / shouldUpdate. */
