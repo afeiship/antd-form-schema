@@ -102,7 +102,7 @@ const [form] = Form.useForm();
 
 - Layout is controlled by four className props: `className` (field grid container), `itemClassName`, `labelClassName`, `controlClassName` — all Tailwind classes, never schema keys.
 - Initial values come **only** from `meta.initialValues`.
-- `Form.Item` is rendered **without** `noStyle`, so validation errors are visible.
+- The control `Form.Item` uses `noStyle` for value binding only; validation messages are rendered by the separate `error` part (visible by default).
 - For extreme customization, drop down to `useFormSchema` and write your own JSX.
 
 > **Breaking change:** the default export is now an alias of `FormFields` (previously an empty scaffold `div` component). Named exports are the primary API.
@@ -116,7 +116,7 @@ const [form] = Form.useForm();
 - `control` — the value-bound control area
 - `error` — validation messages
 
-Every slot accepts three shapes: a component, a ReactNode, or `{ component, props }`. Runtime context (`field`, and the part's own props) is passed to the component; a ReactNode is rendered as-is.
+Every slot accepts three shapes: a component, a ReactNode, or `{ component, props }`. Runtime context (`field`, and the part's own props) is passed to the component; a ReactNode is rendered as-is. For `control` and `field` use the component shape — a static ReactNode cannot host a live input. A custom `control` must keep `noStyle` on its `Form.Item`, otherwise antd and the `error` part would both render the message.
 
 ```tsx
 import { Form } from 'antd';
