@@ -29,7 +29,7 @@ export default function SchemaFormDemo() {
         <h3 className="mb-1 text-base font-semibold">2. SchemaFields — external form, full control</h3>
         <p className="mb-4 text-sm text-gray-500">Form 由使用者持有，字段渲染与布局仍由 className 控制。</p>
         <Form form={form} initialValues={basicMeta.initialValues} layout="vertical" onFinish={(values) => message.success(`Submitted: ${JSON.stringify(values)}`)}>
-          <SchemaFields meta={basicMeta} className="grid grid-cols-1 gap-4 md:grid-cols-2" itemClassName="..." labelClassName="mb-1 block text-sm font-medium text-gray-700" controlClassName="w-full" />
+          <SchemaFields meta={basicMeta} className="grid grid-cols-1 gap-4 md:grid-cols-2" itemClassName="rounded border p-3" labelClassName="mb-1 block text-sm font-medium text-gray-700" controlClassName="w-full" />
           <div className="mt-6 flex justify-end">
             <Button htmlType="submit" type="primary">Submit</Button>
           </div>

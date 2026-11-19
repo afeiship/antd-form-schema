@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import SchemaFields from './SchemaFields';
 import type { SchemaFieldsProps } from './SchemaFields';
 
-export interface SchemaFormProps extends Omit<FormProps, 'form'>, SchemaFieldsProps {
+export interface SchemaFormProps extends Omit<FormProps, 'form' | 'initialValues'>, SchemaFieldsProps {
   onFormReady?: (form: FormInstance) => void;
   children?: ReactNode;
 }
@@ -25,14 +25,14 @@ const SchemaForm: FC<SchemaFormProps> = ({
   const [form] = Form.useForm();
   const readyRef = useRef(false);
   useEffect(() => {
-    if (!readyRef.current) {
+    if (onFormReady && !readyRef.current) {
       readyRef.current = true;
-      onFormReady?.(form);
+      onFormReady(form);
     }
   }, [form, onFormReady]);
 
   return (
-    <Form form={form} initialValues={meta.initialValues} {...rest}>
+    <Form {...rest} form={form} initialValues={meta.initialValues}>
       <SchemaFields
         meta={meta}
         widgets={widgets}

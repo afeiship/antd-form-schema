@@ -91,3 +91,18 @@ describe('SchemaForm', () => {
     expect(document.querySelector('.grid-cls')?.nextElementSibling).toHaveTextContent('Go');
   });
 });
+
+describe('SchemaForm initialValues precedence', () => {
+  it('ignores a caller-supplied initialValues prop in favor of meta.initialValues', () => {
+    render(
+      <SchemaForm
+        meta={{
+          initialValues: { name: 'FromMeta' },
+          fields: [{ key: 'name', label: 'Name', widget: 'input' }],
+        }}
+        {...({ initialValues: { name: 'FromProp' } } as Record<string, unknown>)}
+      />,
+    );
+    expect((document.querySelector('.ant-input') as HTMLInputElement).value).toBe('FromMeta');
+  });
+});

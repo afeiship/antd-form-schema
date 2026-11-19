@@ -19,9 +19,11 @@ pnpm add @jswork/antd-form-schema
   import ViewEdit from './components/view-edit';
   import ConditionalForm from './components/conditional-form';
   import StepForm from './components/step-form';
+  import SchemaFormDemo from './components/schema-form-demo';
 
   const demos = [
     { key: 'basic-grid', title: 'Basic Grid', Component: BasicGrid },
+    { key: 'schema-form', title: 'Quick Form', Component: SchemaFormDemo },
     { key: 'card-groups', title: 'Card Groups', Component: CardGroups },
     { key: 'custom-widget', title: 'Custom Widget', Component: CustomWidget },
     { key: 'view-edit', title: 'View / Edit', Component: ViewEdit },
