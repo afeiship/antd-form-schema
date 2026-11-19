@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it } from 'vitest';
+import { Form } from 'antd';
 import AntdFormSchema, { FormFields } from '../src';
 import type { BoundField } from '../src/types';
 
@@ -29,6 +30,7 @@ describe('FormFields', () => {
     render(<FormFields fields={[makeField()]} />);
     expect(screen.getByText('Name')).toBeInTheDocument();
     expect(screen.getByText('*')).toBeInTheDocument();
+    expect(screen.getByText('Name').closest('label')).toHaveAttribute('for', 'afs_name');
     expect(document.getElementById('name')).toBeInTheDocument();
   });
 
@@ -44,5 +46,18 @@ describe('FormFields', () => {
     );
     expect(screen.queryByText('Secret')).not.toBeInTheDocument();
     expect(container.querySelector('#name')).toBeNull();
+  });
+
+  it('associates the label with the control so clicking it focuses the input', () => {
+    render(
+      <Form>
+        <FormFields fields={[makeField({ control: <input /> })]} />
+      </Form>,
+    );
+    const input = document.querySelector('input') as HTMLInputElement;
+    const label = screen.getByText('Name') as HTMLLabelElement;
+    expect(label.htmlFor).toBe(input.id);
+    expect(input.id).not.toBe('');
+    expect(document.getElementById(label.htmlFor)).toBe(input);
   });
 });
