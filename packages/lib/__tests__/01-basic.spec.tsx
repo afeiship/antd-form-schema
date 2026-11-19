@@ -1,39 +1,48 @@
-/**
- * 基础渲染测试
- * 验证 AntdFormSchema 组件的基本渲染行为，包括：
- * - 默认 className 是否正确应用
- * - 自定义 className 是否能正确合并
- * - children 内容是否正常渲染
- */
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import AntdFormSchema from '../src';
+import { describe, expect, it } from 'vitest';
+import AntdFormSchema, { FormFields } from '../src';
+import type { BoundField } from '../src/types';
 
-describe('AntdFormSchema', () => {
-  it('should render with default className', () => {
-    render(<AntdFormSchema>hello</AntdFormSchema>);
-    const el = screen.getByText('hello');
-    expect(el).toBeInTheDocument();
-    expect(el.closest('[data-component="antd-form-schema"]')).toBeInTheDocument();
+function makeField(overrides: Partial<BoundField> = {}): BoundField {
+  return {
+    key: 'name',
+    name: 'name',
+    widget: 'input',
+    label: 'Name',
+    required: true,
+    visible: true,
+    viewMode: false,
+    itemProps: { name: 'name' },
+    control: <input id="name" />,
+    controlProps: {},
+    ...overrides,
+  };
+}
+
+describe('FormFields', () => {
+  it('exposes the same component as the default export', () => {
+    expect(AntdFormSchema).toBe(FormFields);
   });
 
-  it('should merge custom className', () => {
-    const { container } = render(<AntdFormSchema className="custom-class">test</AntdFormSchema>);
+  it('renders the label, required mark and control of a visible field', () => {
+    render(<FormFields fields={[makeField()]} />);
+    expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(screen.getByText('*')).toBeInTheDocument();
+    expect(document.getElementById('name')).toBeInTheDocument();
+  });
+
+  it('merges className and keeps the scaffold data-component marker', () => {
+    const { container } = render(<FormFields fields={[]} className="custom-class" />);
     expect(container.firstChild).toHaveClass('antd-form-schema', 'custom-class');
-  });
-
-  it('should render children', () => {
-    render(<AntdFormSchema>child content</AntdFormSchema>);
-    expect(screen.getByText('child content')).toBeInTheDocument();
-  });
-
-  it('should pass through rest props', () => {
-    render(<AntdFormSchema id="custom-id" data-role="test" />);
-    expect(document.getElementById('custom-id')).toHaveAttribute('data-role', 'test');
-  });
-
-  it('should not allow overriding data-component', () => {
-    const { container } = render(<AntdFormSchema data-component="custom" />);
     expect(container.firstChild).toHaveAttribute('data-component', 'antd-form-schema');
+  });
+
+  it('skips fields whose visible flag is false', () => {
+    const { container } = render(
+      <FormFields fields={[makeField({ key: 'secret', label: 'Secret', visible: false })]} />,
+    );
+    expect(screen.queryByText('Secret')).not.toBeInTheDocument();
+    expect(container.querySelector('#name')).toBeNull();
   });
 });
