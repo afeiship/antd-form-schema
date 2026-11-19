@@ -1,15 +1,57 @@
-import AntdFormSchema from '@jswork/antd-form-schema';
-import '@jswork/antd-form-schema/style.css';
+import { useState } from 'react';
+import BasicGrid from './components/basic-grid';
+import CardGroups from './components/card-groups';
+import CustomWidget from './components/custom-widget';
+import ViewEdit from './components/view-edit';
+import ConditionalForm from './components/conditional-form';
+import StepForm from './components/step-form';
+
+const demos = [
+  { key: 'basic-grid', title: 'Basic Grid', Component: BasicGrid },
+  { key: 'card-groups', title: 'Card Groups', Component: CardGroups },
+  { key: 'custom-widget', title: 'Custom Widget', Component: CustomWidget },
+  { key: 'view-edit', title: 'View / Edit', Component: ViewEdit },
+  { key: 'conditional', title: 'Conditional', Component: ConditionalForm },
+  { key: 'step-form', title: 'Step Form', Component: StepForm },
+];
 
 function App() {
+  const [active, setActive] = useState(demos[0].key);
+  const current = demos.find((demo) => demo.key === active) ?? demos[0];
+
   return (
-    <div className="m-10 p-4 shadow bg-gray-100 text-gray-800 hover:shadow-md transition-all">
-      <div className="badge badge-warning absolute right-0 top-0 m-4">
-        Build Time: {BUILD_TIME}
+    <div className="min-h-screen bg-gray-50 text-gray-800">
+      <div className="mx-auto max-w-5xl px-4 py-8">
+        <div className="relative mb-6 rounded-lg bg-white p-6 shadow">
+          <div className="badge badge-warning absolute right-4 top-4">Build Time: {BUILD_TIME}</div>
+          <h1 className="text-2xl font-bold">@jswork/antd-form-schema</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Headless Ant Design form binding — layout lives in JSX, never in the schema.
+          </p>
+        </div>
+
+        <div className="mb-6 flex flex-wrap gap-2">
+          {demos.map((demo) => (
+            <button
+              key={demo.key}
+              type="button"
+              onClick={() => setActive(demo.key)}
+              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                active === demo.key
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {demo.title}
+            </button>
+          ))}
+        </div>
+
+        <div className="rounded-lg bg-white p-6 shadow">
+          <h2 className="mb-6 border-b pb-3 text-lg font-semibold">{current.title}</h2>
+          <current.Component />
+        </div>
       </div>
-      <AntdFormSchema className="debug-red">
-        abc
-      </AntdFormSchema>
     </div>
   );
 }

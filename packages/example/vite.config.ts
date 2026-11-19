@@ -21,5 +21,6 @@ export default defineConfig({
   },
   define: {
     BUILD_TIME: JSON.stringify(sdf('datetime')),
+    __VERSION__: JSON.stringify('dev'),
   },
 });
