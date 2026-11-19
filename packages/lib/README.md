@@ -67,6 +67,44 @@ function SimpleForm() {
 ```
 `FormFields` has **no** `columns`/`gutter` or any other layout props — use custom JSX when you need layout.
 
+## quick start (`SchemaForm` / `SchemaFields`)
+
+For common forms, skip the JSX boilerplate. `SchemaForm` creates the Form for you — pass a meta and you are done:
+
+```tsx
+import { Button } from 'antd';
+import { SchemaForm } from '@jswork/antd-form-schema';
+
+<SchemaForm
+  meta={meta}
+  onFinish={save}
+  className="grid grid-cols-2 gap-4"
+  itemClassName="rounded border p-3"
+  labelClassName="mb-1 block text-sm font-medium"
+  controlClassName="w-full"
+>
+  <Button htmlType="submit" type="primary">Submit</Button>
+</SchemaForm>
+```
+
+Need to own the form (read/validate values, reset, etc.)? Use `SchemaFields` inside your own `<Form>`:
+
+```tsx
+import { Button, Form } from 'antd';
+import { SchemaFields } from '@jswork/antd-form-schema';
+
+const [form] = Form.useForm();
+<Form form={form} onFinish={save}>
+  <SchemaFields meta={meta} className="grid grid-cols-2 gap-4" />
+  <Button htmlType="submit">Submit</Button>
+</Form>
+```
+
+- Layout is controlled by four className props: `className` (field grid container), `itemClassName`, `labelClassName`, `controlClassName` — all Tailwind classes, never schema keys.
+- Initial values come **only** from `meta.initialValues`.
+- `Form.Item` is rendered **without** `noStyle`, so validation errors are visible.
+- For extreme customization, drop down to `useFormSchema` and write your own JSX.
+
 > **Breaking change:** the default export is now an alias of `FormFields` (previously an empty scaffold `div` component). Named exports are the primary API.
 
 ## widget override & conditions
