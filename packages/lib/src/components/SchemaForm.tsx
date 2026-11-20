@@ -2,7 +2,6 @@ import { Form } from 'antd';
 import type { FormProps, FormInstance } from 'antd';
 import type { FC, ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
-import type { FormClassNames } from './class-names';
 import SchemaFields from './SchemaFields';
 import type { SchemaFieldsProps } from './SchemaFields';
 import type { FormSlots } from './slots';

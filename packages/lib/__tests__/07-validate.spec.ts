@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateMeta } from '../src/validate';
+import { validateMeta } from '../src/core/validate';
 
 describe('validateMeta', () => {
   it('reports non-array fields as error', () => {

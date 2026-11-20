@@ -9,7 +9,7 @@ import type {
   FormSchema,
   UseFormSchemaOptions,
   UseFormSchemaResult,
-} from '../src/types';
+} from '../src/core/types';
 
 type Captured = { form: FormInstance; result: UseFormSchemaResult };
 

@@ -1,10 +1,10 @@
 import { Form } from 'antd';
 import { createElement, useMemo } from 'react';
-import { getItemProps, getControlProps } from './bind';
-import { evaluateCondition } from './condition';
-import { normalizeMeta } from './normalize';
-import { get } from './utils';
-import { validateMeta } from './validate';
+import { getItemProps, getControlProps } from './core/bind';
+import { evaluateCondition } from './core/condition';
+import { normalizeMeta } from './core/normalize';
+import { get } from './core/utils';
+import { validateMeta } from './core/validate';
 import { applyConverter, resolveWidget, WIDGETS } from './widgets';
 import type {
   BoundField,
@@ -13,7 +13,7 @@ import type {
   Issue,
   UseFormSchemaOptions,
   UseFormSchemaResult,
-} from './types';
+} from './core/types';
 
 // Bundler-safe: `process` is absent in browsers/runtimes that do not shim it.
 const isDev = typeof process === 'undefined' || process.env.NODE_ENV !== 'production';

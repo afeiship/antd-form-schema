@@ -1,4 +1,4 @@
-import { normalizeOptions, resolveName } from './utils';
+import { normalizeOptions, resolveName } from '../core/utils';
 import type { FormSchema, NormalizedField, NormalizedMeta } from './types';
 
 /** Normalize a form schema without mutating the input. */

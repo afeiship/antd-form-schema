@@ -1,7 +1,7 @@
 import { Input, InputNumber, DatePicker, Radio, Checkbox, Switch, Select } from 'antd';
 import { createElement } from 'react';
 import type { FC, ReactNode } from 'react';
-import { normalizeOptions } from './utils';
+import { normalizeOptions } from '../core/utils';
 import type {
   FieldSchema,
   FormSchema,
@@ -9,7 +9,7 @@ import type {
   NormalizedOption,
   Widget,
   WidgetDef,
-} from './types';
+} from '../core/types';
 
 type Converter = Required<WidgetDef>['metaConverter'];
 type ConverterContext = Parameters<Converter>[0];

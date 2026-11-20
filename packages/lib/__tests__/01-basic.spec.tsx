@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { describe, expect, it } from 'vitest';
 import { Form } from 'antd';
 import AntdFormSchema, { FormFields } from '../src';
-import type { BoundField } from '../src/types';
+import type { BoundField } from '../src/core/types';
 
 function makeField(overrides: Partial<BoundField> = {}): BoundField {
   return {

@@ -2,9 +2,9 @@ import { render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it } from 'vitest';
 import { applyConverter, resolveWidget, ViewSpan } from '../src/widgets';
-import { BUILTIN_WIDGET_IDS } from '../src/widget-ids';
-import { normalizeMeta } from '../src/normalize';
-import type { FieldSchema } from '../src/types';
+import { BUILTIN_WIDGET_IDS } from '../src/widgets/widget-ids';
+import { normalizeMeta } from '../src/core/normalize';
+import type { FieldSchema } from '../src/core/types';
 
 function convert(widget: string, overrides: Partial<FieldSchema> = {}) {
   const field = normalizeMeta({ fields: [{ key: 'x', widget, ...overrides }] }).fields[0];

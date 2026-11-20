@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { Form } from 'antd';
 import { SchemaFields, SchemaForm } from '../src';
-import type { BoundField } from '../src/types';
+import type { BoundField } from '../src/core/types';
 
 describe('SchemaFields slots', () => {
   it('does not emit a React key warning on the default field path', () => {

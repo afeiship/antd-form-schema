@@ -1,4 +1,4 @@
-import { get, toNamePath, uniqPaths } from './utils';
+import { get, toNamePath, uniqPaths } from '../core/utils';
 import type { CompareCondition, Condition, ConditionFn, FieldSchema, NamePath } from './types';
 
 type ConditionContext = { form: any; values?: Record<string, any> };

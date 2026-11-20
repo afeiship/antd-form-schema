@@ -1,6 +1,6 @@
 import type { Slot } from '@jswork/react-list';
 import type { ReactNode } from 'react';
-import type { BoundField } from './types';
+import type { BoundField } from '../core/types';
 
 export type FieldCtx = { field: BoundField };
 

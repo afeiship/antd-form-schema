@@ -1,6 +1,6 @@
-import { getConditionPaths } from './condition';
-import { resolveName, toNamePath } from './utils';
-import { BUILTIN_WIDGET_IDS } from './widget-ids';
+import { getConditionPaths } from '../core/condition';
+import { resolveName, toNamePath } from '../core/utils';
+import { BUILTIN_WIDGET_IDS } from '../widgets/widget-ids';
 import type { FieldSchema, FormSchema, Issue, NamePath, WidgetDef } from './types';
 
 /** Turn a normalized path back into a readable name for issue messages. */

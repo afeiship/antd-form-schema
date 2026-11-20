@@ -2,12 +2,12 @@ import { renderSlot } from '@jswork/react-list';
 import { Form } from 'antd';
 import { cloneElement, isValidElement } from 'react';
 import type { FC, ReactElement, ReactNode } from 'react';
-import type { FormClassNames } from './class-names';
-import { mergeClasses, warnIneffectiveClassNames } from './class-names';
+import type { FormClassNames } from '../widgets/class-names';
+import { mergeClasses, warnIneffectiveClassNames } from '../widgets/class-names';
 import { renderControl, renderLabel } from './slots';
 import type { FormSlots } from './slots';
-import { useFormSchema } from './useFormSchema';
-import type { FormSchema, WidgetDef } from './types';
+import { useFormSchema } from '../useFormSchema';
+import type { FormSchema, WidgetDef } from '../core/types';
 
 export interface SchemaFieldsProps {
   meta: FormSchema;

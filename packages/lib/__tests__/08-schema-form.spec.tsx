@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { Form } from 'antd';
 import { SchemaFields, SchemaForm } from '../src';
-import type { FormSchema } from '../src/types';
+import type { FormSchema } from '../src/core/types';
 
 const metaWithName: FormSchema = { fields: [{ key: 'name', label: 'Name', required: true, widget: 'input' }] };
 

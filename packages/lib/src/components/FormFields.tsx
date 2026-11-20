@@ -1,7 +1,7 @@
 import cx from 'classnames';
 import { Form } from 'antd';
 import type { FC, HTMLAttributes } from 'react';
-import type { BoundField } from './types';
+import type { BoundField } from '../core/types';
 
 const CLASS_NAME = 'antd-form-schema';
 

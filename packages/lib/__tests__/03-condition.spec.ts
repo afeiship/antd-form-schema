@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { collectWatchPaths, evaluateCondition, getConditionPaths } from '../src/condition';
-import type { Condition } from '../src/types';
+import { collectWatchPaths, evaluateCondition, getConditionPaths } from '../src/core/condition';
+import type { Condition } from '../src/core/types';
 
 const ctx = (values: Record<string, any>, form: any = {}) => ({ form, values });
 

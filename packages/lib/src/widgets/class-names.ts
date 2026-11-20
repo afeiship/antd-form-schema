@@ -1,4 +1,3 @@
-import { Form } from 'antd';
 import type { FormProps } from 'antd';
 
 /** className slots, keyed to match the rendered parts (`form` only applies to SchemaForm). */

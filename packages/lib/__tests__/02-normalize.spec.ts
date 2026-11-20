@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeMeta } from '../src/normalize';
-import { normalizeOptions, resolveName, toNamePath } from '../src/utils';
+import { normalizeMeta } from '../src/core/normalize';
+import { normalizeOptions, resolveName, toNamePath } from '../src/core/utils';
 
 describe('normalize', () => {
   it('splits dotted key into NamePath', () => {
