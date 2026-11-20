@@ -9,8 +9,8 @@ import SchemaFormDemo from './components/schema-form-demo';
 import SlotsDemo from './components/slots-demo';
 
 const demos = [
+  { key: 'schema-form', title: 'Schema Form', Component: SchemaFormDemo },
   { key: 'basic-grid', title: 'Basic Grid', Component: BasicGrid },
-  { key: 'schema-form', title: 'Quick Form', Component: SchemaFormDemo },
   { key: 'card-groups', title: 'Card Groups', Component: CardGroups },
   { key: 'custom-widget', title: 'Custom Widget', Component: CustomWidget },
   { key: 'view-edit', title: 'View / Edit', Component: ViewEdit },

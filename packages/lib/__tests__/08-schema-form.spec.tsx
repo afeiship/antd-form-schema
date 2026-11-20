@@ -107,3 +107,20 @@ describe('SchemaForm initialValues precedence', () => {
     expect((document.querySelector('.ant-input') as HTMLInputElement).value).toBe('FromMeta');
   });
 });
+
+describe('SchemaFields itemClassName', () => {
+  it('puts itemClassName on the Form.Item itself, without an extra wrapper div', () => {
+    const { container } = render(
+      <Form>
+        <SchemaFields
+          meta={{ fields: [{ key: 'name', label: 'Name', widget: 'input' }] }}
+          itemClassName="item-cls"
+        />
+      </Form>,
+    );
+    const item = container.querySelector('.item-cls') as HTMLElement;
+    expect(item).toHaveClass('ant-form-item');
+    expect(item.parentElement).toBe(container.querySelector('form > div'));
+    expect(item.querySelector('input')).toBeInTheDocument();
+  });
+});

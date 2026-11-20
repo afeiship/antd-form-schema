@@ -1,7 +1,7 @@
 import { renderSlot } from '@jswork/react-list';
 import { Form } from 'antd';
 import type { FC, ReactNode } from 'react';
-import { renderControl, renderField, renderLabel } from './slots';
+import { renderControl, renderLabel } from './slots';
 import type { FormSlots } from './slots';
 import { useFormSchema } from './useFormSchema';
 import type { FormSchema, WidgetDef } from './types';
@@ -44,14 +44,19 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
         const control = slots?.control
           ? renderSlot(slots.control, { field, control: field.control }, field.key + '-control')
           : renderControl({ field, control: field.control });
+        const itemClass = [itemClassName, controlClassName].filter(Boolean).join(' ');
         const item = (
-          <Form.Item {...field.itemProps} label={labelNode} className={controlClassName} required={field.required}>
+          <Form.Item
+            {...field.itemProps}
+            key={field.key}
+            label={labelNode}
+            className={itemClass || undefined}
+            required={field.required}
+          >
             {control}
           </Form.Item>
         );
-        return slots?.field
-          ? renderSlot(slots.field, { field, children: item }, field.key)
-          : renderField({ field, children: item, className: itemClassName, key: field.key });
+        return slots?.field ? renderSlot(slots.field, { field, children: item }, field.key) : item;
       })}
     </div>
   );
