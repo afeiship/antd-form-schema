@@ -111,3 +111,27 @@ describe('ViewSpan', () => {
     expect(container.textContent).toBe('');
   });
 });
+
+describe('valueType', () => {
+  it('injects valueFormat for valueType string on date widgets', () => {
+    expect(convert('date-picker', { valueType: 'string' }).widgetProps?.valueFormat).toBe('YYYY-MM-DD');
+    expect(convert('date-time', { valueType: 'string' }).widgetProps?.valueFormat).toBe('YYYY-MM-DD');
+  });
+
+  it('allows valueFormat override with valueType string', () => {
+    expect(convert('date-picker', { valueType: 'string', valueFormat: 'YYYY/MM/DD' }).widgetProps?.valueFormat).toBe('YYYY/MM/DD');
+  });
+
+  it('ignores valueType on non-date widgets', () => {
+    expect(convert('input', { valueType: 'string' }).widgetProps).toBeUndefined();
+  });
+
+  it('ignores valueFormat without valueType string', () => {
+    expect(convert('date-picker', { valueFormat: 'YYYY/MM/DD' }).widgetProps?.valueFormat).toBeUndefined();
+  });
+
+  it('does not inject valueFormat for dayjs (default)', () => {
+    expect(convert('date-picker').widgetProps?.valueFormat).toBeUndefined();
+    expect(convert('date-picker', { valueType: 'dayjs' }).widgetProps?.valueFormat).toBeUndefined();
+  });
+});

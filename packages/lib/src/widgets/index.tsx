@@ -1,4 +1,5 @@
 import { Input, InputNumber, DatePicker, Radio, Checkbox, Switch, Select } from 'antd';
+import dayjs from 'dayjs';
 import { createElement } from 'react';
 import type { FC, ReactNode } from 'react';
 import { normalizeOptions } from '../core/utils';
@@ -15,6 +16,27 @@ type Converter = Required<WidgetDef>['metaConverter'];
 type ConverterContext = Parameters<Converter>[0];
 
 const checkedConverter: Converter = () => ({ valuePropName: 'checked' });
+
+/** Date widgets: convert stored form values per field.valueType ('dayjs' = untouched). */
+const dateConverter: Converter = ({ field }: ConverterContext) => {
+  const widgetProps: Record<string, any> = {};
+  if (field.valueType === 'string') {
+    widgetProps.valueFormat = field.valueFormat ?? 'YYYY-MM-DD';
+  } else if (field.valueType === 'timestamp' || field.valueType === 'number') {
+    const toMs = (v: any) => (v == null ? v : dayjs(v).valueOf());
+    const prevOnChange = field.widgetProps?.onChange;
+    widgetProps.getValueProps = (value: any) => ({
+      value: Array.isArray(value)
+        ? value.map((v) => (v == null ? v : dayjs(v)))
+        : v == null
+          ? v
+          : dayjs(v),
+    });
+    widgetProps.onChange = (value: any) =>
+      prevOnChange?.(Array.isArray(value) ? value.map(toMs) : toMs(value));
+  }
+  return { widgetProps };
+};
 
 /** Build option children with a stable key for each normalized option. */
 function optionsChildren(
@@ -89,10 +111,12 @@ export const WIDGETS: Record<string, WidgetDef> = {
   password: { component: Input.Password },
   textarea: { component: Input.TextArea },
   number: { component: InputNumber },
-  'date-picker': { component: DatePicker },
+  'date-picker': { component: DatePicker, metaConverter: dateConverter },
   'date-time': {
     component: DatePicker,
-    metaConverter: () => ({ widgetProps: { showTime: true } }),
+    metaConverter: (ctx) => ({
+      widgetProps: { showTime: true, ...dateConverter(ctx).widgetProps },
+    }),
   },
   radio: { component: Radio, metaConverter: checkedConverter },
   'radio-group': { component: Radio.Group, metaConverter: radioGroupConverter },
