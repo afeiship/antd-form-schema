@@ -1,23 +1,7 @@
 import { useState } from 'react';
-import BasicGrid from './components/basic-grid';
-import CardGroups from './components/card-groups';
-import CustomWidget from './components/custom-widget';
-import ViewEdit from './components/view-edit';
-import ConditionalForm from './components/conditional-form';
-import StepForm from './components/step-form';
 import SchemaFormDemo from './components/schema-form-demo';
-import SlotsDemo from './components/slots-demo';
 
-const demos = [
-  { key: 'schema-form', title: 'Schema Form', Component: SchemaFormDemo },
-  { key: 'basic-grid', title: 'Basic Grid', Component: BasicGrid },
-  { key: 'card-groups', title: 'Card Groups', Component: CardGroups },
-  { key: 'custom-widget', title: 'Custom Widget', Component: CustomWidget },
-  { key: 'view-edit', title: 'View / Edit', Component: ViewEdit },
-  { key: 'conditional', title: 'Conditional', Component: ConditionalForm },
-  { key: 'step-form', title: 'Step Form', Component: StepForm },
-  { key: 'slots', title: 'Slots', Component: SlotsDemo },
-];
+const demos = [{ key: 'schema-form', title: 'Schema Form', Component: SchemaFormDemo }];
 
 function App() {
   const [active, setActive] = useState(demos[0].key);

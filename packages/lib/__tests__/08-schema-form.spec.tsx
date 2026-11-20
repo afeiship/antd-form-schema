@@ -5,27 +5,39 @@ import { Form } from 'antd';
 import { SchemaFields, SchemaForm } from '../src';
 import type { FormSchema } from '../src/types';
 
+const metaWithName: FormSchema = { fields: [{ key: 'name', label: 'Name', required: true, widget: 'input' }] };
+
 describe('SchemaFields', () => {
-  it('renders fields from meta with all className hooks inside a Form', () => {
+  it('applies classNames.field/label/control to the default renderers', () => {
     render(
       <Form>
         <SchemaFields
-          meta={{ fields: [{ key: 'name', label: 'Name', required: true, widget: 'input' }] }}
-          className="grid-cls"
-          itemClassName="item-cls"
-          labelClassName="label-cls"
-          controlClassName="control-cls"
+          meta={metaWithName}
+          classNames={{ field: 'field-cls', label: 'label-cls', control: 'control-cls' }}
         />
       </Form>,
     );
-    const grid = document.querySelector('.grid-cls');
-    expect(grid).toBeInTheDocument();
-    const item = grid?.querySelector('.item-cls');
-    expect(item).toBeInTheDocument();
-    expect(item?.querySelector('.label-cls')).toHaveTextContent('Name');
-    // antd renders the required mark via CSS class, not a literal `*`.
-    expect(item?.querySelector('.ant-form-item-required')).toBeInTheDocument();
-    expect(item?.querySelector('.control-cls input')).toBeInTheDocument();
+    const item = document.querySelector('.field-cls') as HTMLElement;
+    expect(item).toHaveClass('ant-form-item');
+    expect(item.parentElement).toBe(document.querySelector('form'));
+    expect(item.querySelector('.label-cls')).toHaveTextContent('Name');
+    expect(item.querySelector('.ant-form-item-required')).toBeInTheDocument();
+    expect(item.querySelector('input.control-cls')).toBeInTheDocument();
+  });
+
+  it('warns and ignores classNames.form because there is no Form element to attach it to', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      render(
+        <Form>
+          <SchemaFields meta={{ fields: [] }} classNames={{ form: 'grid-cls', field: 'field-cls' }} />
+        </Form>,
+      );
+      expect(document.querySelector('.grid-cls')).toBeNull();
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/classNames\.form.*ineffective/i));
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it('hides fields whose declarative condition is false', () => {
@@ -54,10 +66,7 @@ describe('SchemaForm', () => {
   it('creates an internal form and applies meta.initialValues', () => {
     render(
       <SchemaForm
-        meta={{
-          initialValues: { name: 'Alice' },
-          fields: [{ key: 'name', label: 'Name', widget: 'input' }],
-        }}
+        meta={{ initialValues: { name: 'Alice' }, fields: [{ key: 'name', label: 'Name', widget: 'input' }] }}
       >
         <button type="submit">Submit</button>
       </SchemaForm>,
@@ -66,11 +75,7 @@ describe('SchemaForm', () => {
   });
 
   it('shows validation errors (Form.Item is not noStyle)', async () => {
-    render(
-      <SchemaForm meta={{ fields: [{ key: 'name', label: 'Name', required: true, widget: 'input' }] }}>
-        <button type="submit">Submit</button>
-      </SchemaForm>,
-    );
+    render(<SchemaForm meta={metaWithName}><button type="submit">Submit</button></SchemaForm>);
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
     expect(await screen.findByText(/required/i)).toBeInTheDocument();
   });
@@ -83,13 +88,35 @@ describe('SchemaForm', () => {
     expect(onFormReady.mock.calls[0][0]).toHaveProperty('getFieldsValue');
   });
 
-  it('renders children after the field grid', () => {
+  it('puts classNames.form on the internal Form and forwards the rest to SchemaFields', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const { container } = render(
+        <SchemaForm
+          meta={metaWithName}
+          classNames={{ form: 'grid-cls', field: 'field-cls', label: 'label-cls', control: 'control-cls' }}
+        >
+          <button type="submit">Go</button>
+        </SchemaForm>,
+      );
+      const form = container.querySelector('form');
+      expect(form).toHaveClass('grid-cls');
+      expect(form?.querySelector('.field-cls')).toBeInTheDocument();
+      expect(form?.querySelector('.label-cls')).toBeInTheDocument();
+      expect(form?.querySelector('input.control-cls')).toBeInTheDocument();
+      expect(warn).not.toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('renders children after the fields', () => {
     render(
-      <SchemaForm meta={{ fields: [{ key: 'name', label: 'Name', widget: 'input' }] }} className="grid-cls">
+      <SchemaForm meta={metaWithName} classNames={{ form: 'grid-cls' }}>
         <button type="submit">Go</button>
       </SchemaForm>,
     );
-    expect(document.querySelector('.grid-cls')?.nextElementSibling).toHaveTextContent('Go');
+    expect(document.querySelector('form')).toHaveTextContent('Go');
   });
 });
 
@@ -97,30 +124,10 @@ describe('SchemaForm initialValues precedence', () => {
   it('ignores a caller-supplied initialValues prop in favor of meta.initialValues', () => {
     render(
       <SchemaForm
-        meta={{
-          initialValues: { name: 'FromMeta' },
-          fields: [{ key: 'name', label: 'Name', widget: 'input' }],
-        }}
+        meta={{ initialValues: { name: 'FromMeta' }, fields: [{ key: 'name', label: 'Name', widget: 'input' }] }}
         {...({ initialValues: { name: 'FromProp' } } as Record<string, unknown>)}
       />,
     );
     expect((document.querySelector('.ant-input') as HTMLInputElement).value).toBe('FromMeta');
-  });
-});
-
-describe('SchemaFields itemClassName', () => {
-  it('puts itemClassName on the Form.Item itself, without an extra wrapper div', () => {
-    const { container } = render(
-      <Form>
-        <SchemaFields
-          meta={{ fields: [{ key: 'name', label: 'Name', widget: 'input' }] }}
-          itemClassName="item-cls"
-        />
-      </Form>,
-    );
-    const item = container.querySelector('.item-cls') as HTMLElement;
-    expect(item).toHaveClass('ant-form-item');
-    expect(item.parentElement).toBe(container.querySelector('form > div'));
-    expect(item.querySelector('input')).toBeInTheDocument();
   });
 });

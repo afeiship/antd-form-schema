@@ -71,17 +71,17 @@ function SimpleForm() {
 For common forms, skip the JSX boilerplate. `SchemaForm` creates the Form for you — pass a meta and you are done:
 
 ```tsx
-import { Button } from 'antd';
 import { SchemaForm } from '@jswork/antd-form-schema';
+import type { FormClassNames } from '@jswork/antd-form-schema';
 
-<SchemaForm
-  meta={meta}
-  onFinish={save}
-  className="grid grid-cols-2 gap-4"
-  itemClassName="rounded border p-3"
-  labelClassName="mb-1 block text-sm font-medium"
-  controlClassName="w-full"
->
+const classNames: FormClassNames = {
+  form: 'grid grid-cols-2 gap-4',
+  field: 'rounded border p-3',
+  label: 'mb-1 block text-sm font-medium',
+  control: 'w-full',
+};
+
+<SchemaForm meta={meta} onFinish={save} classNames={classNames}>
   <Button htmlType="submit" type="primary">Submit</Button>
 </SchemaForm>
 ```
@@ -94,12 +94,14 @@ import { SchemaFields } from '@jswork/antd-form-schema';
 
 const [form] = Form.useForm();
 <Form form={form} onFinish={save}>
-  <SchemaFields meta={meta} className="grid grid-cols-2 gap-4" />
+  <div className="grid grid-cols-2 gap-4">
+    <SchemaFields meta={meta} classNames={{ field: 'rounded border p-3' }} />
+  </div>
   <Button htmlType="submit">Submit</Button>
 </Form>
 ```
 
-- Layout is controlled by four className props: `className` (field grid container), `itemClassName`, `labelClassName`, `controlClassName` — all Tailwind classes, never schema keys.
+- Layout is controlled by one `classNames` object (keys mirror the parts: `form` / `field` / `label` / `control`) — Tailwind classes, never schema keys. `classNames.form` applies only to `SchemaForm`; on `SchemaFields` it is ignored with a dev warning.
 - Initial values come **only** from `meta.initialValues`.
 - `label`, required mark and validation errors are rendered by antd `Form.Item` itself (so clicking a label focuses its control; error messages use antd styles).
 - For extreme customization, drop down to `useFormSchema` and write your own JSX.
