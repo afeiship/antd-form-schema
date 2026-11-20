@@ -10,6 +10,9 @@ function pathToName(path: NamePath): string {
   return parts.join('.');
 }
 
+/** Valid valueType values, shared by the validator. */
+const VALUE_TYPES = ['dayjs', 'string', 'number', 'timestamp'];
+
 /** Validate a schema and return issues. Dev/prod behavior is decided by the hook. */
 export function validateMeta(meta: FormSchema, widgets?: Record<string, WidgetDef>): Issue[] {
   if (!Array.isArray(meta.fields)) {
@@ -50,6 +53,14 @@ export function validateMeta(meta: FormSchema, widgets?: Record<string, WidgetDe
 
     if (field.options !== undefined && !Array.isArray(field.options)) {
       issues.push({ level: 'error', message: 'options must be an array', field: field.key });
+    }
+
+    if (field.valueType !== undefined && !VALUE_TYPES.includes(field.valueType)) {
+      issues.push({
+        level: 'warning',
+        message: `unknown valueType "${field.valueType}"`,
+        field: field.key,
+      });
     }
 
     if (

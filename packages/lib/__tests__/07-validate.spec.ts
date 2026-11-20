@@ -89,4 +89,26 @@ describe('validateMeta', () => {
       }),
     ).toEqual([]);
   });
+
+  it('warns on unknown valueType', () => {
+    const issues = validateMeta({ fields: [{ key: 'a', valueType: 'banana' } as any] });
+    expect(issues).toContainEqual(
+      expect.objectContaining({
+        level: 'warning',
+        message: expect.stringContaining('unknown valueType "banana"'),
+      }),
+    );
+  });
+
+  it('accepts known valueTypes silently', () => {
+    const issues = validateMeta({
+      fields: [
+        { key: 'a', valueType: 'string' },
+        { key: 'b', valueType: 'timestamp' },
+        { key: 'c', valueType: 'dayjs' },
+        { key: 'd', valueType: 'number' },
+      ] as any,
+    });
+    expect(issues).toEqual([]);
+  });
 });
