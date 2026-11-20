@@ -12,12 +12,19 @@
     "dev": "pnpm --filter example dev",
     "docs": "node scripts/markdown.js",
     "test": "pnpm --filter @jswork/antd-form-schema test",
-    "build": "pnpm run docs && pnpm --filter @jswork/antd-form-schema build",
+    "build": "pnpm run docs \u0026\u0026 pnpm --filter @jswork/antd-form-schema build",
     "release": "pnpm --filter @jswork/antd-form-schema release"
   },
   "devDependencies": {
     "@jswork/next": "^1.2.2",
     "@jswork/next-replace-in-file": "^1.0.0",
     "indent-string": "^5.0.0"
-  }
+  },
+  "keywords": [
+    "schema",
+    "form",
+    "antd",
+    "headless",
+    "react"
+  ]
 }
