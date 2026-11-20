@@ -28,7 +28,12 @@ const dateConverter: Converter = ({ field }: ConverterContext) => {
   const widgetProps: Record<string, any> = {};
   const itemProps: Record<string, any> = {};
   if (field.valueType === 'string') {
-    widgetProps.valueFormat = field.valueFormat ?? 'YYYY-MM-DD';
+    // antd React's DatePicker has no valueFormat; convert manually around the form store.
+    const format = field.valueFormat ?? 'YYYY-MM-DD';
+    itemProps.getValueProps = (value: any) => ({ value: mapOrNull(value, (v) => dayjs(v)) });
+    const prevOnChange = field.widgetProps?.onChange;
+    widgetProps.onChange = (value: any) =>
+      prevOnChange?.(mapOrNull(value, (v) => (v == null ? v : dayjs(v).format(format))));
   } else if (field.valueType === 'timestamp' || field.valueType === 'number') {
     // Inbound (Form.Item): stored ms -> dayjs so the picker can render it.
     itemProps.getValueProps = (value: any) => ({ value: mapOrNull(value, (v) => dayjs(v)) });
@@ -117,6 +122,7 @@ export const WIDGETS: Record<string, WidgetDef> = {
     component: DatePicker,
     metaConverter: (ctx) => ({
       widgetProps: { showTime: true, ...dateConverter(ctx).widgetProps },
+      itemProps: dateConverter(ctx).itemProps,
     }),
   },
   radio: { component: Radio, metaConverter: checkedConverter },

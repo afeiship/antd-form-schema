@@ -103,7 +103,7 @@ const [form] = Form.useForm();
 
 - Layout is controlled by one `classNames` object (keys mirror the parts: `form` / `field` / `label` / `control`) — Tailwind classes, never schema keys. `classNames.form` applies only to `SchemaForm`; on `SchemaFields` it is ignored with a dev warning.
 - Initial values come **only** from `meta.initialValues`.
-- Date fields store dayjs objects by default; declare `valueType: 'string' | 'number' | 'timestamp'` on a date field (optional `valueFormat`, default `YYYY-MM-DD`) to store plain values instead.
+- Date fields store dayjs objects by default; declare `valueType: 'string' | 'number' | 'timestamp'` on a date field (optional `valueFormat`, default `YYYY-MM-DD`, string type only) to store plain values instead. Conversion wraps the form store — antd React's DatePicker has no native `valueFormat`.
 - `normalizeValues` (on `meta` or as a `SchemaForm` prop) transforms the whole values object right before `onFinish` — for cross-field cleanup the schema cannot express.
 - `label`, required mark and validation errors are rendered by antd `Form.Item` itself (so clicking a label focuses its control; error messages use antd styles).
 - For extreme customization, drop down to `useFormSchema` and write your own JSX.

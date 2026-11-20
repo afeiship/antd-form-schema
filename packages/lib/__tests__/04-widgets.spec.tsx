@@ -115,26 +115,43 @@ describe('ViewSpan', () => {
 });
 
 describe('valueType', () => {
-  it('injects valueFormat for valueType string on date widgets', () => {
-    expect(convert('date-picker', { valueType: 'string' }).widgetProps?.valueFormat).toBe('YYYY-MM-DD');
-    expect(convert('date-time', { valueType: 'string' }).widgetProps?.valueFormat).toBe('YYYY-MM-DD');
+  it('stores formatted strings for valueType string', () => {
+    for (const id of ['date-picker', 'date-time']) {
+      const compiled = convert(id, { valueType: 'string' });
+      const day = dayjs('2024-01-15T10:30:00');
+      let stored: any;
+      compiled.widgetProps?.onChange?.(day, day);
+      // capture: our onChange wrapper passes the converted value to user onChange
+      const withCapture = convert(id, { valueType: 'string', widgetProps: { onChange: (v: any) => (stored = v) } });
+      withCapture.widgetProps?.onChange?.(day, day);
+      expect(stored, id).toBe('2024-01-15');
+      // echo: Form.Item getValueProps turns the string back into a dayjs
+      const echoed = withCapture.itemProps?.getValueProps?.('2024-01-15').value;
+      expect(echoed?.format?.('YYYY-MM-DD'), id).toBe('2024-01-15');
+    }
   });
 
   it('allows valueFormat override with valueType string', () => {
-    expect(convert('date-picker', { valueType: 'string', valueFormat: 'YYYY/MM/DD' }).widgetProps?.valueFormat).toBe('YYYY/MM/DD');
+    let stored: any;
+    const compiled = convert('date-picker', {
+      valueType: 'string',
+      valueFormat: 'YYYY/MM/DD',
+      widgetProps: { onChange: (v: any) => (stored = v) },
+    });
+    compiled.widgetProps?.onChange?.(dayjs('2024-01-15T10:30:00'));
+    expect(stored).toBe('2024/01/15');
   });
 
   it('ignores valueType on non-date widgets', () => {
     expect(convert('input', { valueType: 'string' }).widgetProps).toBeUndefined();
   });
 
-  it('ignores valueFormat without valueType string', () => {
-    expect(convert('date-picker', { valueFormat: 'YYYY/MM/DD' }).widgetProps?.valueFormat).toBeUndefined();
-  });
-
-  it('does not inject valueFormat for dayjs (default)', () => {
-    expect(convert('date-picker').widgetProps?.valueFormat).toBeUndefined();
-    expect(convert('date-picker', { valueType: 'dayjs' }).widgetProps?.valueFormat).toBeUndefined();
+  it('does not convert values for dayjs (default)', () => {
+    let stored: any;
+    const compiled = convert('date-picker', { widgetProps: { onChange: (v: any) => (stored = v) } });
+    compiled.widgetProps?.onChange?.('raw');
+    expect(stored).toBe('raw');
+    expect(compiled.itemProps?.getValueProps).toBeUndefined();
   });
 });
 
