@@ -24,7 +24,6 @@ export default function SchemaFormDemo() {
           labelCol={{ span: 4 }} // 等价于你说的 labelWidth
           wrapperCol={{ span: 20 }}
           colon={false}
-          layout="inline"
           meta={basicMeta}
           classNames={classNames}
           onFinish={(values) => message.success(`Submitted: ${JSON.stringify(values)}`)}>
