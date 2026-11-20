@@ -44,7 +44,8 @@ const SchemaFields: FC<SchemaFieldsProps> = ({ meta, widgets, classNames, slots 
         const control = slots?.control
           ? renderSlot(slots.control, { field, control: field.control }, field.key + '-control')
           : renderControl({ field, control: field.control });
-        const finalControl = classNames?.control ? withClassName(control, classNames.control) : control;
+        const controlClass = mergeClasses(field.className, classNames?.control);
+        const finalControl = controlClass ? withClassName(control, controlClass) : control;
         const item = (
           <Form.Item
             {...field.itemProps}

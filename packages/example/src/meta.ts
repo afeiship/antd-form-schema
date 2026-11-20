@@ -37,7 +37,7 @@ export const basicMeta: FormSchema = {
       options: ['React', 'Node', 'Go'],
     },
     { key: 'birthday', label: '生日', widget: 'date-picker' },
-    { key: 'notify', label: '接收通知', widget: 'switch' },
+    { key: 'notify', label: '接收通知', widget: 'switch', className: 'w-auto' },
     { key: 'agree', label: '同意协议', widget: 'checkbox', required: true },
   ],
 };

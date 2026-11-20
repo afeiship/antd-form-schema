@@ -79,6 +79,7 @@ export function useFormSchema(
       name: converted.name,
       widget: field.widget ?? 'input',
       label: field.label,
+      className: field.className,
       placeholder: field.placeholder,
       options: converted.options,
       required: field.required,

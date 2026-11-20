@@ -34,6 +34,8 @@ export interface FieldSchema {
   /** Props passed to the widget, e.g. { mode: 'multiple' }. */
   widgetProps?: Record<string, any>;
   label?: ReactNode;
+  /** Field-level className, applied to the Form.Item of this field. */
+  className?: string;
   placeholder?: string;
   options?: OptionInput[];
   /** Required shortcut, converted to a required rule during normalize. */
@@ -113,6 +115,8 @@ export interface BoundField {
   name: NamePath;
   widget: string | Widget;
   label?: ReactNode;
+  /** Field-level className, applied to the Form.Item of this field. */
+  className?: string;
   placeholder?: string;
   options?: NormalizedOption[];
   required?: boolean;
