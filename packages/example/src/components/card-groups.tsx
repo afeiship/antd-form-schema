@@ -53,7 +53,7 @@ export default function CardGroups() {
                 const field = getField(key);
                 if (!field?.visible) return null;
                 return (
-                  <Form.Item key={key} {...field.itemProps} label={field.label}>
+                  <Form.Item key={key} {...field.itemProps} label={field.label} required={field.required}>
                     {field.control}
                   </Form.Item>
                 );

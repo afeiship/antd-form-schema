@@ -1,7 +1,7 @@
 import { renderSlot } from '@jswork/react-list';
 import { Form } from 'antd';
-import type { FC } from 'react';
-import { renderControl, renderError, renderField, renderLabel } from './slots';
+import type { FC, ReactNode } from 'react';
+import { renderControl, renderField, renderLabel } from './slots';
 import type { FormSlots } from './slots';
 import { useFormSchema } from './useFormSchema';
 import type { FormSchema, WidgetDef } from './types';
@@ -16,7 +16,7 @@ export interface SchemaFieldsProps {
   slots?: FormSlots;
 }
 
-/** Field renderer: reads the form from context, renders a className-driven grid of labelled fields. */
+/** Field renderer: delegates label/required/error to antd Form.Item. */
 const SchemaFields: FC<SchemaFieldsProps> = ({
   meta,
   widgets,
@@ -33,37 +33,25 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
   return (
     <div className={className}>
       {visibleFields.map((field) => {
-        const body = (
-          <>
-            {slots?.label
-              ? renderSlot(slots.label, { field }, field.key + '-label')
-              : renderLabel({ field, className: labelClassName })}
-            {slots?.control
-              ? renderSlot(
-                  slots.control,
-                  { field, control: field.control, itemProps: field.itemProps },
-                  field.key + '-control',
-                )
-              : renderControl({
-                  field,
-                  control: field.control,
-                  itemProps: field.itemProps,
-                  className: controlClassName,
-                })}
-            <Form.Item noStyle shouldUpdate>
-              {() => {
-                const errors = form.getFieldError(field.name);
-                return slots?.error
-                  ? renderSlot(slots.error, { field, errors }, field.key + '-error')
-                  : renderError({ field, errors });
-              }}
-            </Form.Item>
-          </>
+        const labelContent = slots?.label
+          ? renderSlot(slots.label, { field }, field.key + '-label')
+          : renderLabel({ field });
+        const labelNode: ReactNode = labelClassName ? (
+          <span className={labelClassName}>{labelContent}</span>
+        ) : (
+          labelContent
         );
-
+        const control = slots?.control
+          ? renderSlot(slots.control, { field, control: field.control }, field.key + '-control')
+          : renderControl({ field, control: field.control });
+        const item = (
+          <Form.Item {...field.itemProps} label={labelNode} className={controlClassName} required={field.required}>
+            {control}
+          </Form.Item>
+        );
         return slots?.field
-          ? renderSlot(slots.field, { field, children: body }, field.key)
-          : renderField({ field, children: body, className: itemClassName, key: field.key });
+          ? renderSlot(slots.field, { field, children: item }, field.key)
+          : renderField({ field, children: item, className: itemClassName, key: field.key });
       })}
     </div>
   );

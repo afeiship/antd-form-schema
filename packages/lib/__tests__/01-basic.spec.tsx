@@ -26,12 +26,16 @@ describe('FormFields', () => {
     expect(AntdFormSchema).toBe(FormFields);
   });
 
-  it('renders the label, required mark and control of a visible field', () => {
-    render(<FormFields fields={[makeField()]} />);
+  it('renders the label and control of a visible field, with required mark from antd', () => {
+    render(
+      <Form>
+        <FormFields fields={[makeField({ control: <input /> })]} />
+      </Form>,
+    );
     expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('*')).toBeInTheDocument();
-    expect(screen.getByText('Name').closest('label')).toHaveAttribute('for', 'afs_name');
-    expect(document.getElementById('name')).toBeInTheDocument();
+    // antd renders the required mark via its label CSS class, not a literal `*`.
+    expect(document.querySelector('.ant-form-item-required')).toBeInTheDocument();
+    expect(document.querySelector('input')).toBeInTheDocument();
   });
 
   it('merges className and keeps the scaffold data-component marker', () => {

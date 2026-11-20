@@ -42,11 +42,7 @@ function renderFields(fields: BoundField[]) {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       {fields.map((field) => (
         <div key={field.key}>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            {field.label}
-            {field.required && <span className="text-red-500"> *</span>}
-          </label>
-          <Form.Item {...field.itemProps} noStyle>
+          <Form.Item {...field.itemProps} label={field.label} required={field.required}>
             {field.control}
           </Form.Item>
         </div>

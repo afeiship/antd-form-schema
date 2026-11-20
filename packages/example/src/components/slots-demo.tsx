@@ -1,35 +1,28 @@
-import { Button, Form, message } from 'antd';
+import { Button, message } from 'antd';
 import { SchemaForm } from '@jswork/antd-form-schema';
 import type { FormSlots } from '@jswork/antd-form-schema';
 import { basicMeta } from '../meta';
 
-/** Custom slots: label tooltip, unit beside control, red error text. */
+/** Custom slots: label tooltip and a unit beside the control. antd Form.Item still owns the <label>, required mark and errors. */
 const customSlots: FormSlots = {
   label: ({ field }) => (
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      <abbr title={`${String(field.label)}（鼠标悬停查看说明）`}>{String(field.label)}</abbr>
-      {field.required && <span className="text-red-500"> *</span>}
-    </label>
+    <abbr title={`${String(field.label)}（鼠标悬停查看说明）`}>{String(field.label)}</abbr>
   ),
-  control: ({ control, itemProps, field }) => (
+  control: ({ control, field }) => (
     <div className="flex items-center gap-2">
-      <div className="flex-1">
-        <Form.Item {...itemProps} noStyle>{control}</Form.Item>
-      </div>
+      <div className="flex-1">{control}</div>
       {field.key === 'age' && <span className="text-sm text-gray-500">岁</span>}
     </div>
   ),
-  error: ({ errors }) => (errors.length > 0 ? <div className="mt-1 text-sm text-red-600">{errors.join('、')}</div> : null),
 };
 
-/** Slots demo: custom label / control / error, plus a default-rendered control group. */
 export default function SlotsDemo() {
   return (
     <div className="space-y-10">
       <section>
         <h3 className="mb-1 text-base font-semibold">1. 自定义 slots</h3>
         <p className="mb-4 text-sm text-gray-500">
-          label 带 tooltip、age 控件旁加单位、错误用红色文案；其余部件保持默认渲染。
+          label 带 tooltip、age 控件旁加单位；label 的 htmlFor、必填星号与错误文案仍由 antd Form.Item 负责。
         </p>
         <SchemaForm
           meta={basicMeta}
@@ -47,12 +40,12 @@ export default function SlotsDemo() {
 
       <section>
         <h3 className="mb-1 text-base font-semibold">2. 对照：不传 slots</h3>
-        <p className="mb-4 text-sm text-gray-500">同一份 meta，不传 slots 时行为与之前完全一致。</p>
+        <p className="mb-4 text-sm text-gray-500">同一份 meta，不传 slots 时完全走 antd Form.Item 默认渲染。</p>
         <SchemaForm
           meta={basicMeta}
           className="grid grid-cols-1 gap-4 md:grid-cols-2"
           itemClassName="rounded border p-3"
-          labelClassName="mb-1 block text-sm font-medium text-gray-700"
+          labelClassName="text-sm font-medium text-gray-700"
           controlClassName="w-full"
           onFinish={(values) => message.success(`Submitted: ${JSON.stringify(values)}`)}
         >

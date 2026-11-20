@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -101,20 +101,16 @@ describe('SchemaFields slots', () => {
     expect(await screen.findByText(/required/i)).toBeInTheDocument();
   });
 
-  it('passes form errors to a custom error slot', async () => {
-    const ErrorView = vi.fn(({ errors }: { errors: string[] }) => <div data-testid="err">{errors.join('|')}</div>);
+  it('delegates validation errors to antd Form.Item (error slot removed)', async () => {
     render(
       <Form>
-        <SchemaFields
-          meta={{ fields: [{ key: 'name', label: 'Name', required: true, widget: 'input' }] }}
-          slots={{ error: ErrorView }}
-        />
+        <SchemaFields meta={{ fields: [{ key: 'name', label: 'Name', required: true, widget: 'input' }] }} />
         <button type="submit">Go</button>
       </Form>,
     );
     fireEvent.click(screen.getByText('Go'));
-    await waitFor(() => expect(ErrorView).toHaveBeenCalled());
-    expect(screen.getByTestId('err').textContent).toMatch(/required/i);
+    expect(await screen.findByText(/required/i)).toBeInTheDocument();
+    expect(document.querySelector('.ant-form-item-explain-error')).toBeInTheDocument();
   });
 
   it('passes slots through SchemaForm', () => {

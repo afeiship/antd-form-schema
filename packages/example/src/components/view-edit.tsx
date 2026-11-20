@@ -45,8 +45,7 @@ export default function ViewEdit() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {visibleFields.map((field) => (
             <div key={field.key} className={field.widget === 'textarea' ? 'md:col-span-2' : ''}>
-              <label className="mb-1 block text-sm font-medium text-gray-700">{field.label}</label>
-              <Form.Item {...field.itemProps} noStyle>
+              <Form.Item {...field.itemProps} label={field.label} required={field.required}>
                 {viewMode ? (field.viewContent ?? field.control) : field.control}
               </Form.Item>
             </div>

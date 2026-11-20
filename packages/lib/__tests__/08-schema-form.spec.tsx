@@ -23,7 +23,8 @@ describe('SchemaFields', () => {
     const item = grid?.querySelector('.item-cls');
     expect(item).toBeInTheDocument();
     expect(item?.querySelector('.label-cls')).toHaveTextContent('Name');
-    expect(item?.querySelector('.label-cls')).toHaveTextContent('*');
+    // antd renders the required mark via CSS class, not a literal `*`.
+    expect(item?.querySelector('.ant-form-item-required')).toBeInTheDocument();
     expect(item?.querySelector('.control-cls input')).toBeInTheDocument();
   });
 

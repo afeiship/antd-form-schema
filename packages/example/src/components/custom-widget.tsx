@@ -45,8 +45,7 @@ export default function CustomWidget() {
             key={field.key}
             className={field.widget === 'textarea' ? 'md:col-span-2' : ''}
           >
-            <label className="mb-1 block text-sm font-medium text-gray-700">{field.label}</label>
-            <Form.Item {...field.itemProps} noStyle>
+            <Form.Item {...field.itemProps} label={field.label} required={field.required}>
               {field.widget === 'select' ? (
                 <Radio.Group
                   options={field.controlProps.options}

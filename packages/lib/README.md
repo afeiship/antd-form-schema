@@ -34,10 +34,9 @@ function UserForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {visibleFields.map((f) => (
           <div key={f.key} className={f.widget === 'textarea' ? 'md:col-span-2' : ''}>
-            <label className="block mb-1 text-sm font-medium text-gray-700">
-              {f.label}{f.required && <span className="text-red-500"> *</span>}
-            </label>
-            <Form.Item {...f.itemProps} noStyle>{f.control}</Form.Item>
+            <Form.Item {...f.itemProps} label={f.label} required={f.required}>
+              {f.control}
+            </Form.Item>
           </div>
         ))}
       </div>
@@ -46,7 +45,7 @@ function UserForm() {
   );
 }
 ```
-`itemProps` contains only data-binding keys (`name`, `rules`, `valuePropName`, `dependencies`, `shouldUpdate`); it deliberately has no `label`/`className`/`style`. Layout and the label asterisk belong in your JSX.
+`itemProps` contains only data-binding keys (`name`, `rules`, `valuePropName`, `dependencies`, `shouldUpdate`); it deliberately has no `label`/`className`/`style`. Pass `label` to `Form.Item` yourself for accessible labels — layout remains in your JSX.
 
 ## convenience renderer (`FormFields`)
 For simple cases, `FormFields` is a thin vertical wrapper around `Form.Item` and `f.control`:
@@ -102,42 +101,39 @@ const [form] = Form.useForm();
 
 - Layout is controlled by four className props: `className` (field grid container), `itemClassName`, `labelClassName`, `controlClassName` — all Tailwind classes, never schema keys.
 - Initial values come **only** from `meta.initialValues`.
-- The control `Form.Item` uses `noStyle` for value binding only; validation messages are rendered by the separate `error` part (visible by default).
+- `label`, required mark and validation errors are rendered by antd `Form.Item` itself (so clicking a label focuses its control; error messages use antd styles).
 - For extreme customization, drop down to `useFormSchema` and write your own JSX.
 
 > **Breaking change:** the default export is now an alias of `FormFields` (previously an empty scaffold `div` component). Named exports are the primary API.
 
 ## slots
 
-`SchemaForm` and `SchemaFields` render each field from four replaceable parts (`slots` is a component prop, never a schema key):
+`SchemaForm` and `SchemaFields` render each field with three replaceable parts (`slots` is a component prop, never a schema key). The `<label htmlFor>`, required mark and error text are always owned by antd `Form.Item`:
 
-- `label` — the field label
-- `field` — the wrapper around one field's whole body
-- `control` — the value-bound control area
-- `error` — validation messages
+- `label` — overrides the **label content** (antd still wraps it in `<label>` and adds the required mark)
+- `control` — overrides the `Form.Item` children (the value-bound control)
+- `field` — overrides the wrapper around the whole `Form.Item`
 
-Every slot accepts three shapes: a component, a ReactNode, or `{ component, props }`. Runtime context (`field`, and the part's own props) is passed to the component; a ReactNode is rendered as-is. For `control` and `field` use the component shape — a static ReactNode cannot host a live input. A custom `control` must keep `noStyle` on its `Form.Item`, otherwise antd and the `error` part would both render the message.
+Every slot accepts three shapes: a component, a ReactNode, or `{ component, props }`. Runtime context (`field`, and the part's own props) is passed to the component; a ReactNode is rendered as-is. For `control` and `field` use the component shape — a static ReactNode cannot host a live input.
 
 ```tsx
-import { Form } from 'antd';
 import { SchemaForm } from '@jswork/antd-form-schema';
 import type { FormSlots } from '@jswork/antd-form-schema';
 
 const slots: FormSlots = {
-  label: ({ field }) => <label>{field.label}</label>,
-  control: ({ control, itemProps }) => (
+  label: ({ field }) => <abbr title={String(field.label)}>{String(field.label)}</abbr>,
+  control: ({ control, field }) => (
     <div className="flex items-center gap-2">
-      <Form.Item {...itemProps} noStyle>{control}</Form.Item>
-      <span>USD</span>
+      <div className="flex-1">{control}</div>
+      {field.key === 'age' && <span>岁</span>}
     </div>
   ),
-  error: ({ errors }) => (errors.length ? <p className="text-red-500">{errors.join(', ')}</p> : null),
 };
 
 <SchemaForm meta={meta} slots={slots} />;
 ```
 
-Only replace the parts you need — any slot you omit falls back to its default renderer, so behavior (including validation errors) is unchanged when `slots` is not provided. Custom slots own their markup and classes; the four `className` props still style only the default renderers.
+Only replace the parts you need — any slot you omit falls back to the default (`Form.Item`-based) rendering. Custom slots own their markup and classes; the four `className` props still style only the default renderers.
 
 ## widget override & conditions
 Pass a `widgets` map to `useFormSchema` to register or override widget ids. A widget is a string id or a component escape hatch:

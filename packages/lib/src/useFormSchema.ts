@@ -67,7 +67,12 @@ export function useFormSchema(
     const renderProps = viewDef
       ? { ...getControlProps(renderField), initialValue: get(values, converted.name) }
       : controlProps;
-    const control = createElement(WidgetComponent, renderProps);
+    // `options` would leak onto a native input's DOM; drop it in edit mode.
+    // View widgets (e.g. ViewSpan) need options to resolve enum labels, so keep it there.
+    const elementProps = viewDef
+      ? renderProps
+      : (({ options: _options, ...rest }) => rest)(renderProps);
+    const control = createElement(WidgetComponent, elementProps);
 
     return {
       key: field.key,
