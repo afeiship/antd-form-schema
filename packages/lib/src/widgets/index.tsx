@@ -17,25 +17,26 @@ type ConverterContext = Parameters<Converter>[0];
 
 const checkedConverter: Converter = () => ({ valuePropName: 'checked' });
 
+/** Map a scalar or array value, passing null/undefined through untouched. */
+function mapOrNull<T, R>(value: T | T[], fn: (v: T) => R): R | R[] | T | T[] {
+  if (value == null) return value;
+  return Array.isArray(value) ? value.map(fn) : fn(value);
+}
+
 /** Date widgets: convert stored form values per field.valueType ('dayjs' = untouched). */
 const dateConverter: Converter = ({ field }: ConverterContext) => {
   const widgetProps: Record<string, any> = {};
+  const itemProps: Record<string, any> = {};
   if (field.valueType === 'string') {
     widgetProps.valueFormat = field.valueFormat ?? 'YYYY-MM-DD';
   } else if (field.valueType === 'timestamp' || field.valueType === 'number') {
-    const toMs = (v: any) => (v == null ? v : dayjs(v).valueOf());
+    // Inbound (Form.Item): stored ms -> dayjs so the picker can render it.
+    itemProps.getValueProps = (value: any) => ({ value: mapOrNull(value, (v) => dayjs(v)) });
+    // Outbound (widget onChange): picked dayjs -> ms before it reaches the form store.
     const prevOnChange = field.widgetProps?.onChange;
-    widgetProps.getValueProps = (value: any) => ({
-      value: Array.isArray(value)
-        ? value.map((v) => (v == null ? v : dayjs(v)))
-        : v == null
-          ? v
-          : dayjs(v),
-    });
-    widgetProps.onChange = (value: any) =>
-      prevOnChange?.(Array.isArray(value) ? value.map(toMs) : toMs(value));
+    widgetProps.onChange = (value: any) => prevOnChange?.(mapOrNull(value, (v) => dayjs(v).valueOf()));
   }
-  return { widgetProps };
+  return { widgetProps, itemProps };
 };
 
 /** Build option children with a stable key for each normalized option. */
@@ -147,6 +148,9 @@ export function applyConverter(
   const result = { ...field, ...patch } as NormalizedField;
   if (field.widgetProps || patch.widgetProps) {
     result.widgetProps = { ...field.widgetProps, ...patch.widgetProps };
+  }
+  if (patch.itemProps) {
+    result.itemProps = { ...(result as any).itemProps, ...patch.itemProps };
   }
   return result;
 }

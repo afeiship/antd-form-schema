@@ -1,8 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it } from 'vitest';
+import dayjs from 'dayjs';
 import { applyConverter, resolveWidget, ViewSpan } from '../src/widgets';
 import { BUILTIN_WIDGET_IDS } from '../src/widgets/widget-ids';
+import { Harness } from './05-hook.spec';
 import { normalizeMeta } from '../src/core/normalize';
 import type { FieldSchema } from '../src/core/types';
 
@@ -133,5 +135,24 @@ describe('valueType', () => {
   it('does not inject valueFormat for dayjs (default)', () => {
     expect(convert('date-picker').widgetProps?.valueFormat).toBeUndefined();
     expect(convert('date-picker', { valueType: 'dayjs' }).widgetProps?.valueFormat).toBeUndefined();
+  });
+});
+
+describe('valueType timestamp (render)', () => {
+  it('echoes a stored timestamp and stores ms after picking', () => {
+    const captured: any = {};
+    render(
+      <Harness
+        meta={{
+          fields: [{ key: 'd', widget: 'date-picker', valueType: 'timestamp' }],
+          initialValues: { d: 1705276800000 }, // 2024-01-15 UTC
+        } as any}
+        capture={(v) => Object.assign(captured, v)}
+      />,
+    );
+    const input = document.querySelector('.ant-picker input') as HTMLInputElement;
+    expect(input).toBeTruthy();
+    expect(captured.form.getFieldValue('d')).toBe(1705276800000);
+    expect(input.value).toMatch(/2024/);
   });
 });

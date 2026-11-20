@@ -63,6 +63,7 @@ export function useFormSchema(
     const itemProps = getItemProps(converted, {
       valuePropName: isView ? 'initialValue' : converted.valuePropName,
     });
+    if ((converted as any).itemProps) Object.assign(itemProps, (converted as any).itemProps);
     const controlProps = getControlProps(converted);
     const renderProps = viewDef
       ? { ...getControlProps(renderField), initialValue: get(values, converted.name) }

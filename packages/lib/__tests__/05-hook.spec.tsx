@@ -13,7 +13,7 @@ import type {
 
 type Captured = { form: FormInstance; result: UseFormSchemaResult };
 
-function Harness({
+export function Harness({
   meta,
   capture,
   options,
