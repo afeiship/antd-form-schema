@@ -19,8 +19,10 @@ const converters = { money, ratio };
 
 const meta: FormSchema = {
   initialValues: { price: 1999, discount: 0.125, note: 'plain value' },
+  // Form-wide default: every field keyed here uses the converter unless it declares its own.
+  converters: { price: 'money' },
   fields: [
-    { key: 'price', label: 'Price (stored in cents)', widget: 'number', converter: 'money' },
+    { key: 'price', label: 'Price (stored in cents)', widget: 'number' },
     { key: 'discount', label: 'Discount (stored as ratio)', widget: 'number', converter: 'ratio' },
     { key: 'note', label: 'Note (no converter)' },
   ],
