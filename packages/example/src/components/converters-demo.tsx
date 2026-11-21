@@ -9,18 +9,24 @@ const money: FieldConverter = {
   write: (value) => (value == null ? value : Math.round(Number(value) * 100)),
 };
 
+/** number <-> two-decimal string */
+const fixed2: FieldConverter = {
+  read: (value) => (value == null ? value : Number(value).toFixed(2)),
+  write: (value) => (value == null || value === '' ? value : Number(value)),
+};
+
 /** 0.125 in storage <-> 12.5 in the control */
 const ratio: FieldConverter = {
   read: (value) => (value == null ? value : Number(value) * 100),
   write: (value) => (value == null ? value : Number(value) / 100),
 };
 
-const converters = { money, ratio };
+const converters = { money, fixed2, ratio };
 
 const meta: FormSchema = {
   initialValues: { price: 1999, discount: 0.125, note: 'plain value' },
   // Form-wide default: every field keyed here uses the converter unless it declares its own.
-  converters: { price: 'money' },
+  converters: { price: ['money', 'fixed2'] },
   fields: [
     { key: 'price', label: 'Price (stored in cents)', widget: 'number' },
     { key: 'discount', label: 'Discount (stored as ratio)', widget: 'number', converter: 'ratio' },
