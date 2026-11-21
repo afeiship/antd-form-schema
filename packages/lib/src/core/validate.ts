@@ -1,6 +1,7 @@
 import { getConditionPaths } from '../core/condition';
 import { resolveName, toNamePath } from '../core/utils';
 import { BUILTIN_WIDGET_IDS } from '../widgets/widget-ids';
+import { normalizeConverterIds } from './converters';
 import type {
   FieldSchema,
   FieldConverter,
@@ -74,23 +75,37 @@ export function validateMeta(
       });
     }
 
-    const converterId = field.converter ?? meta.converters?.[field.key];
-    if (converterId !== undefined) {
-      const registered =
-        converters && Object.prototype.hasOwnProperty.call(converters, converterId);
-      if (!registered) {
-        issues.push({
-          level: 'error',
-          message: `unregistered converter "${converterId}"`,
-          field: field.key,
-        });
+    const converterRef = field.converter ?? meta.converters?.[field.key];
+    const converterIds = normalizeConverterIds(converterRef);
+    if (converterIds.length > 0) {
+      for (const id of converterIds) {
+        const registered = converters && Object.prototype.hasOwnProperty.call(converters, id);
+        if (!registered) {
+          issues.push({
+            level: 'error',
+            message: `unregistered converter "${id}"`,
+            field: field.key,
+          });
+        }
       }
       if (field.valueType !== undefined) {
         issues.push({
           level: 'error',
-          message: `converter "${converterId}" cannot be combined with valueType on field "${field.key}"`,
+          message: `converter "${converterIds.join(',')}" cannot be combined with valueType on field "${field.key}"`,
           field: field.key,
         });
+      }
+      if (converterIds.length > 1) {
+        for (const id of converterIds) {
+          const definition = converters?.[id];
+          if (definition && !definition.write) {
+            issues.push({
+              level: 'warning',
+              message: `converter "${id}" in chain "${converterIds.join(',')}" has no write`,
+              field: field.key,
+            });
+          }
+        }
       }
     }
 

@@ -2,7 +2,7 @@ import { Form } from 'antd';
 import { createElement, useMemo } from 'react';
 import { getItemProps, getControlProps } from './core/bind';
 import { evaluateCondition } from './core/condition';
-import { applyFieldConverter, readConvertedValue, resolveConverter } from './core/converters';
+import { applyFieldConverter, readConvertedValue, resolveConverterChain } from './core/converters';
 import { normalizeMeta } from './core/normalize';
 import { applyPresets } from './core/presets';
 import { get } from './core/utils';
@@ -75,22 +75,22 @@ export function useFormSchema(
       : undefined;
     const renderField = viewDef ? applyConverter(converted, viewDef, meta) : converted;
     const WidgetComponent = viewDef ? viewDef.component : def.component;
-    const converterId = converted.converter ?? activeMeta.converters?.[converted.key];
-    const converter = resolveConverter(converterId, converters);
-    const converterCtx = converter
+    const converterRef = converted.converter ?? activeMeta.converters?.[converted.key];
+    const chain = resolveConverterChain(converterRef, converters);
+    const converterCtx = chain.length
       ? { field: converted, values, meta: activeMeta }
       : undefined;
 
     let props = getItemProps(converted, {
       valuePropName: isView ? 'initialValue' : converted.valuePropName,
     });
-    if (converter && converterCtx) {
-      props = applyFieldConverter(props, converter, converterCtx, isView);
+    if (chain.length && converterCtx) {
+      props = applyFieldConverter(props, chain, converterCtx, isView);
     }
     if (converted.itemProps) Object.assign(props, converted.itemProps);
     const controlProps = getControlProps(converted);
     const storedValue = get(values, converted.name);
-    const viewValue = readConvertedValue(storedValue, converter, converted, values, activeMeta);
+    const viewValue = readConvertedValue(storedValue, chain, converted, values, activeMeta);
     const renderProps = viewDef
       ? { ...getControlProps(renderField), initialValue: viewValue }
       : controlProps;
@@ -109,7 +109,7 @@ export function useFormSchema(
       className: field.className,
       valueType: field.valueType,
       valueFormat: field.valueFormat,
-      converter: converterId,
+      converter: converterRef,
       placeholder: field.placeholder,
       options: converted.options,
       required: field.required,

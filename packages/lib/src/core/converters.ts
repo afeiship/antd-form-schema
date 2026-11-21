@@ -9,7 +9,20 @@ import type {
 // Bundler-safe: `process` is absent in browsers/runtimes that do not shim it.
 const isDev = typeof process === 'undefined' || process.env.NODE_ENV !== 'production';
 
-/** Look up a converter by id. Unknown ids are reported by validateMeta, not here. */
+/** A resolved converter step: id kept for diagnostics, implementation for execution. */
+export interface ResolvedConverter {
+  id: string;
+  converter: FieldConverter;
+}
+
+/** Normalize `string | string[] | undefined` into a clean id list. */
+export function normalizeConverterIds(ref?: string | string[]): string[] {
+  if (ref == null) return [];
+  const ids = Array.isArray(ref) ? ref : [ref];
+  return ids.filter((id) => typeof id === 'string' && id.length > 0);
+}
+
+/** Look up a single converter by id. Unknown ids are reported by validateMeta, not here. */
 export function resolveConverter(
   id: string | undefined,
   registry?: Record<string, FieldConverter>,
@@ -18,18 +31,42 @@ export function resolveConverter(
   return registry?.[id];
 }
 
-/** Run one converter hook; a throwing converter must never break the form. */
-function callConverter(
-  fn: (value: any, ctx: ConverterContext) => any,
+/** Resolve an ordered converter chain; unknown ids are skipped (validation owns reporting). */
+export function resolveConverterChain(
+  ref: string | string[] | undefined,
+  registry?: Record<string, FieldConverter>,
+): ResolvedConverter[] {
+  return normalizeConverterIds(ref).flatMap((id) => {
+    const converter = resolveConverter(id, registry);
+    return converter ? [{ id, converter }] : [];
+  });
+}
+
+/** Run a chain in one try/catch: read forward, write backward; failure falls back to the input. */
+function runChain(
+  chain: ResolvedConverter[],
   value: any,
   ctx: ConverterContext,
   direction: 'read' | 'write',
 ): any {
+  const ordered = direction === 'write' ? [...chain].reverse() : chain;
+  let current = value;
+  let currentId: string | undefined;
+
   try {
-    return fn(value, ctx);
+    for (const step of ordered) {
+      currentId = step.id;
+      const fn = step.converter[direction];
+      if (fn) current = fn(current, ctx);
+    }
+    return current;
   } catch (error) {
     if (isDev) {
-      console.warn(`[antd-form-schema] converter ${direction} failed on "${ctx.field.key}"`, error);
+      const ids = chain.map((step) => step.id).join(',');
+      console.warn(
+        `[antd-form-schema] converter chain "${ids}" failed at "${currentId}" on "${ctx.field.key}"`,
+        error,
+      );
     }
     return value;
   }
@@ -47,32 +84,32 @@ function extractControlValue(args: any[]): any {
 }
 
 /**
- * Wrap Form.Item value hooks with the field converter.
+ * Wrap Form.Item value hooks with the converter chain.
  * Explicit `field.itemProps` is merged afterwards by the caller, so it always wins.
  */
 export function applyFieldConverter(
   itemProps: FormItemProps,
-  converter: FieldConverter,
+  chain: ResolvedConverter[],
   ctx: ConverterContext,
   viewMode = false,
 ): FormItemProps {
-  if (!converter) return itemProps;
+  if (!chain.length) return itemProps;
   const result: FormItemProps = { ...itemProps };
   const valueKey = (result.valuePropName as string | undefined) ?? 'value';
   const previousGetValueProps = result.getValueProps;
 
-  if (converter.read) {
+  if (chain.some((step) => step.converter.read)) {
     result.getValueProps = (value: any) => {
       const base = previousGetValueProps ? previousGetValueProps(value) : {};
-      return { ...base, [valueKey]: callConverter(converter.read!, value, ctx, 'read') };
+      return { ...base, [valueKey]: runChain(chain, value, ctx, 'read') };
     };
   }
 
-  if (!viewMode && converter.write) {
+  if (!viewMode && chain.some((step) => step.converter.write)) {
     const previousFromEvent = result.getValueFromEvent;
     result.getValueFromEvent = (...args: any[]) => {
       const raw = previousFromEvent ? (previousFromEvent as any)(...args) : extractControlValue(args);
-      return callConverter(converter.write!, raw, ctx, 'write');
+      return runChain(chain, raw, ctx, 'write');
     };
   }
 
@@ -82,11 +119,11 @@ export function applyFieldConverter(
 /** Read a stored value for view-mode rendering, without touching Form.Item hooks. */
 export function readConvertedValue(
   value: any,
-  converter: FieldConverter | undefined,
+  chain: ResolvedConverter[],
   field: NormalizedField,
   values: Record<string, any>,
   meta: FormSchema,
 ): any {
-  if (!converter?.read) return value;
-  return callConverter(converter.read, value, { field, values, meta }, 'read');
+  if (!chain.length) return value;
+  return runChain(chain, value, { field, values, meta }, 'read');
 }

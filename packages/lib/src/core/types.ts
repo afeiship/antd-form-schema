@@ -61,8 +61,8 @@ export interface FieldSchema {
   valueType?: 'dayjs' | 'string' | 'number' | 'timestamp';
   /** Format override, only meaningful with valueType 'string'. Default 'YYYY-MM-DD'. */
   valueFormat?: string;
-  /** Converter id resolved from the `converters` registry; mutually exclusive with valueType. */
-  converter?: string;
+  /** Converter id or ordered id chain; read runs forward, write backward. Mutually exclusive with valueType. */
+  converter?: string | string[];
 }
 
 /** Context passed to a field converter. `values` is a read-only snapshot of the whole form. */
@@ -93,7 +93,7 @@ export interface FormSchema {
   normalizeValues?: (values: Record<string, any>) => Record<string, any>;
   initialValues?: Record<string, any>;
   /** Form-level converter defaults keyed by field key. A field's own `converter` wins. */
-  converters?: Record<string, string>;
+  converters?: Record<string, string | string[]>;
   fields: FieldSchema[];
 }
 
@@ -168,7 +168,7 @@ export interface BoundField {
   valueType?: 'dayjs' | 'string' | 'number' | 'timestamp';
   valueFormat?: string;
   /** Converter id used by this field, exposed for debugging. */
-  converter?: string;
+  converter?: string | string[];
   placeholder?: string;
   options?: NormalizedOption[];
   required?: boolean;
