@@ -72,7 +72,7 @@ const detailMeta: FormSchema = {
     },
     { key: 'birthday', valueType: 'string' },
     { key: 'id' },
-    { key: 'bio', viewSpan: 2 },
+    { key: 'bio'},
   ],
 };
 
