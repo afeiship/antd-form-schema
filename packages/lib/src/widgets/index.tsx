@@ -27,19 +27,22 @@ function mapOrNull<T, R>(value: T | T[], fn: (v: T) => R): R | R[] | T | T[] {
 const dateConverter: Converter = ({ field }: ConverterContext) => {
   const widgetProps: Record<string, any> = {};
   const itemProps: Record<string, any> = {};
-  if (field.valueType === 'string') {
-    // antd React's DatePicker has no valueFormat; convert manually around the form store.
+  if (field.valueType === 'string' || field.valueType === 'timestamp' || field.valueType === 'number') {
+    const isString = field.valueType === 'string';
     const format = field.valueFormat ?? 'YYYY-MM-DD';
-    itemProps.getValueProps = (value: any) => ({ value: mapOrNull(value, (v) => dayjs(v)) });
-    const prevOnChange = field.widgetProps?.onChange;
-    widgetProps.onChange = (value: any) =>
-      prevOnChange?.(mapOrNull(value, (v) => (v == null ? v : dayjs(v).format(format))));
-  } else if (field.valueType === 'timestamp' || field.valueType === 'number') {
-    // Inbound (Form.Item): stored ms -> dayjs so the picker can render it.
-    itemProps.getValueProps = (value: any) => ({ value: mapOrNull(value, (v) => dayjs(v)) });
-    // Outbound (widget onChange): picked dayjs -> ms before it reaches the form store.
-    const prevOnChange = field.widgetProps?.onChange;
-    widgetProps.onChange = (value: any) => prevOnChange?.(mapOrNull(value, (v) => dayjs(v).valueOf()));
+    // Outbound: rc-field-form calls getValueFromEvent(args) BEFORE dispatching to the
+    // store, so this (not an onChange wrapper) is the only hook that actually converts.
+    itemProps.getValueFromEvent = (value: any) => {
+      if (value == null) return value;
+      if (isString) {
+        return Array.isArray(value) ? value.map((v) => (v == null ? v : dayjs(v).format(format))) : dayjs(value).format(format);
+      }
+      return Array.isArray(value) ? value.map((v) => (v == null ? v : dayjs(v).valueOf())) : dayjs(value).valueOf();
+    };
+    // Inbound (Form.Item): stored string/ms -> dayjs so the picker can render it.
+    itemProps.getValueProps = (value: any) => ({
+      value: mapOrNull(value, (v) => (isString ? dayjs(v, format) : dayjs(Number(v)))),
+    });
   }
   return { widgetProps, itemProps };
 };
@@ -120,10 +123,13 @@ export const WIDGETS: Record<string, WidgetDef> = {
   'date-picker': { component: DatePicker, metaConverter: dateConverter },
   'date-time': {
     component: DatePicker,
-    metaConverter: (ctx) => ({
-      widgetProps: { showTime: true, ...dateConverter(ctx).widgetProps },
-      itemProps: dateConverter(ctx).itemProps,
-    }),
+    metaConverter: (ctx) => {
+      const converted = dateConverter(ctx);
+      return {
+        widgetProps: { showTime: true, ...converted.widgetProps },
+        itemProps: converted.itemProps,
+      };
+    },
   },
   radio: { component: Radio, metaConverter: checkedConverter },
   'radio-group': { component: Radio.Group, metaConverter: radioGroupConverter },
