@@ -77,6 +77,36 @@ pnpm add @jswork/antd-form-schema
   export default App;
   ```
 
+## project defaults
+
+Configure `presets`, `converters` and `locale` once at the project entry. Every `SchemaForm`, `SchemaFields` and `useFormSchema` call picks them up; per-form props only override.
+
+```tsx
+// main.tsx
+import { configureSchemaForm } from '@jswork/antd-form-schema';
+
+configureSchemaForm({
+  locale: 'zh-CN',
+  presets: projectPresets,
+  converters: projectConverters,
+});
+```
+
+```tsx
+// any form: no repeated presets / converters / locale
+<SchemaForm meta={meta} />
+
+// override only what this form needs
+<SchemaForm meta={meta} locale="en-US" converters={{ ratio }} />
+```
+
+- `configureSchemaForm(defaults)` shallow-merges the provided fields; call it before mounting components.
+- Priority: form-level prop → project defaults → built-in fallback (`zh-CN`, built-in widgets and labels).
+- `presets` merge per key: form-level `fields` and `labels[locale]` win while the remaining project entries stay available.
+- `converters` merge per id: a form-level implementation with the same id replaces the project one; other ids remain registered.
+- `getSchemaFormDefaults()` returns a snapshot; `resetSchemaFormDefaults()` clears everything (useful in tests and HMR).
+- The config is module-level state. SSR multi-tenant apps should use per-form props instead.
+
 ## field converters
 A converter adapts one field between its stored value and its control value. Register converters once and reference them by id in the schema; the field keeps its own key and nothing else changes.
 
