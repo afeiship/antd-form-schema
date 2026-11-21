@@ -77,6 +77,43 @@ pnpm add @jswork/antd-form-schema
   export default App;
   ```
 
+## key presets
+
+`presets.fields` maps a bare schema key to its default widget. A string is the widget id; an object carries the widget plus any control props.
+
+```ts
+const presets = {
+  fields: {
+    title: {
+      widget: 'input',
+      placeholder: '请输入标题',
+      allowClear: true,
+      maxLength: 60,
+    },
+    bio: {
+      widget: 'textarea',
+      placeholder: '请输入个人简介',
+      autoSize: { minRows: 2, maxRows: 6 },
+    },
+    status: 'select',
+  },
+  labels: {
+    'zh-CN': { title: '标题', bio: '简介', status: '状态' },
+  },
+};
+
+<SchemaForm
+  meta={{ fields: [{ key: 'title' }, { key: 'bio' }, { key: 'status' }] }}
+  presets={presets}
+/>;
+```
+
+- Every key except `widget` is treated as a control prop; values can be string, number, boolean, array, or object.
+- `widgetProps` is an explicit alternative; on duplicate keys it wins over shorthand props.
+- Schema props always win: `placeholder`, `disabled`, `readOnly`, `options` and `widgetProps` on the field override the preset.
+- A schema `widget` override does not discard the preset's other props; they remain the defaults for that key.
+- String shorthand (`title: 'input'`) is equivalent to `{ widget: 'input' }`.
+
 ## project defaults
 
 Configure `presets`, `converters` and `locale` once at the project entry. Every `SchemaForm`, `SchemaFields` and `useFormSchema` call picks them up; per-form props only override.
