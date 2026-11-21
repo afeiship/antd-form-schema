@@ -63,6 +63,7 @@ export function useFormSchema(
     const itemProps = getItemProps(converted, {
       valuePropName: isView ? 'initialValue' : converted.valuePropName,
     });
+    if ((converted as any).itemProps) Object.assign(itemProps, (converted as any).itemProps);
     const controlProps = getControlProps(converted);
     const renderProps = viewDef
       ? { ...getControlProps(renderField), initialValue: get(values, converted.name) }
@@ -80,6 +81,8 @@ export function useFormSchema(
       widget: field.widget ?? 'input',
       label: field.label,
       className: field.className,
+      valueType: field.valueType,
+      valueFormat: field.valueFormat,
       placeholder: field.placeholder,
       options: converted.options,
       required: field.required,

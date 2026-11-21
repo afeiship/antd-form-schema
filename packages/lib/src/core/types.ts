@@ -55,6 +55,10 @@ export interface FieldSchema {
   dependencies?: NamePath[];
   shouldUpdate?: FormItemProps['shouldUpdate'];
   valuePropName?: string;
+  /** Form-level value type; date widgets convert outbound values. Default 'dayjs' (no conversion). */
+  valueType?: 'dayjs' | 'string' | 'number' | 'timestamp';
+  /** Format override, only meaningful with valueType 'string'. Default 'YYYY-MM-DD'. */
+  valueFormat?: string;
 }
 
 /** Form contract: no layout or style keys. */
@@ -63,6 +67,8 @@ export interface FormSchema {
   version?: string;
   viewMode?: boolean;
   disabled?: boolean;
+  /** Whole-values transform applied before onFinish in SchemaForm. */
+  normalizeValues?: (values: Record<string, any>) => Record<string, any>;
   initialValues?: Record<string, any>;
   fields: FieldSchema[];
 }
@@ -117,6 +123,8 @@ export interface BoundField {
   label?: ReactNode;
   /** Field-level className, applied to the Form.Item of this field. */
   className?: string;
+  valueType?: 'dayjs' | 'string' | 'number' | 'timestamp';
+  valueFormat?: string;
   placeholder?: string;
   options?: NormalizedOption[];
   required?: boolean;

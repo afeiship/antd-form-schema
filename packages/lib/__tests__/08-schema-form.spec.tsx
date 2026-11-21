@@ -131,3 +131,36 @@ describe('SchemaForm initialValues precedence', () => {
     expect((document.querySelector('.ant-input') as HTMLInputElement).value).toBe('FromMeta');
   });
 });
+
+describe('SchemaForm normalizeValues', () => {
+  it('applies meta.normalizeValues before onFinish', async () => {
+    const onFinish = vi.fn();
+    const meta: FormSchema = {
+      fields: [{ key: 'name', label: 'Name', widget: 'input' }],
+      normalizeValues: (values) => ({ ...values, extra: 1 }),
+    };
+    render(
+      <SchemaForm meta={meta} onFinish={onFinish}>
+        <button type="submit">Go</button>
+      </SchemaForm>,
+    );
+    fireEvent.input(document.querySelector('.ant-input') as HTMLElement, { target: { value: 'x' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    await screen.findByText(/go/i);
+    expect(onFinish).toHaveBeenCalledWith(expect.objectContaining({ extra: 1, name: 'x' }));
+  });
+
+  it('onFinish receives raw values when normalizeValues is absent', async () => {
+    const onFinish = vi.fn();
+    render(
+      <SchemaForm meta={metaWithName} onFinish={onFinish}>
+        <button type="submit">Go</button>
+      </SchemaForm>,
+    );
+    fireEvent.input(document.querySelector('.ant-input') as HTMLElement, { target: { value: 'y' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Go' }));
+    await screen.findByText(/go/i);
+    const values = onFinish.mock.calls[0][0];
+    expect(values).toEqual({ name: 'y' });
+  });
+});

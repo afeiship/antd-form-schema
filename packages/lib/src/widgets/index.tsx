@@ -1,4 +1,5 @@
 import { Input, InputNumber, DatePicker, Radio, Checkbox, Switch, Select } from 'antd';
+import dayjs from 'dayjs';
 import { createElement } from 'react';
 import type { FC, ReactNode } from 'react';
 import { normalizeOptions } from '../core/utils';
@@ -15,6 +16,36 @@ type Converter = Required<WidgetDef>['metaConverter'];
 type ConverterContext = Parameters<Converter>[0];
 
 const checkedConverter: Converter = () => ({ valuePropName: 'checked' });
+
+/** Map a scalar or array value, passing null/undefined through untouched. */
+function mapOrNull<T, R>(value: T | T[], fn: (v: T) => R): R | R[] | T | T[] {
+  if (value == null) return value;
+  return Array.isArray(value) ? value.map(fn) : fn(value);
+}
+
+/** Date widgets: convert stored form values per field.valueType ('dayjs' = untouched). */
+const dateConverter: Converter = ({ field }: ConverterContext) => {
+  const widgetProps: Record<string, any> = {};
+  const itemProps: Record<string, any> = {};
+  if (field.valueType === 'string' || field.valueType === 'timestamp' || field.valueType === 'number') {
+    const isString = field.valueType === 'string';
+    const format = field.valueFormat ?? 'YYYY-MM-DD';
+    // Outbound: rc-field-form calls getValueFromEvent(args) BEFORE dispatching to the
+    // store, so this (not an onChange wrapper) is the only hook that actually converts.
+    itemProps.getValueFromEvent = (value: any) => {
+      if (value == null) return value;
+      if (isString) {
+        return Array.isArray(value) ? value.map((v) => (v == null ? v : dayjs(v).format(format))) : dayjs(value).format(format);
+      }
+      return Array.isArray(value) ? value.map((v) => (v == null ? v : dayjs(v).valueOf())) : dayjs(value).valueOf();
+    };
+    // Inbound (Form.Item): stored string/ms -> dayjs so the picker can render it.
+    itemProps.getValueProps = (value: any) => ({
+      value: mapOrNull(value, (v) => (isString ? dayjs(v, format) : dayjs(Number(v)))),
+    });
+  }
+  return { widgetProps, itemProps };
+};
 
 /** Build option children with a stable key for each normalized option. */
 function optionsChildren(
@@ -89,10 +120,16 @@ export const WIDGETS: Record<string, WidgetDef> = {
   password: { component: Input.Password },
   textarea: { component: Input.TextArea },
   number: { component: InputNumber },
-  'date-picker': { component: DatePicker },
+  'date-picker': { component: DatePicker, metaConverter: dateConverter },
   'date-time': {
     component: DatePicker,
-    metaConverter: () => ({ widgetProps: { showTime: true } }),
+    metaConverter: (ctx) => {
+      const converted = dateConverter(ctx);
+      return {
+        widgetProps: { showTime: true, ...converted.widgetProps },
+        itemProps: converted.itemProps,
+      };
+    },
   },
   radio: { component: Radio, metaConverter: checkedConverter },
   'radio-group': { component: Radio.Group, metaConverter: radioGroupConverter },
@@ -123,6 +160,9 @@ export function applyConverter(
   const result = { ...field, ...patch } as NormalizedField;
   if (field.widgetProps || patch.widgetProps) {
     result.widgetProps = { ...field.widgetProps, ...patch.widgetProps };
+  }
+  if (patch.itemProps) {
+    result.itemProps = { ...(result as any).itemProps, ...patch.itemProps };
   }
   return result;
 }
