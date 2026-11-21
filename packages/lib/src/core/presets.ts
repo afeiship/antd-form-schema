@@ -21,9 +21,15 @@ function pickEntry<T>(table: Record<string, T> | undefined, key: string): T | un
   return table[last];
 }
 
-function widgetOf(entry: PresetField | undefined): Widget | undefined {
-  if (!entry) return undefined;
-  return typeof entry === 'string' ? entry : entry.widget;
+/** Read a preset entry into its widget and its default widget props. */
+function presetOf(entry: PresetField | undefined): {
+  widget?: Widget;
+  props: Record<string, any>;
+} {
+  if (!entry) return { props: {} };
+  if (typeof entry === 'string') return { widget: entry, props: {} };
+  const { widget, widgetProps, ...direct } = entry;
+  return { widget, props: { ...direct, ...widgetProps } };
 }
 
 /** locale → zh-CN → builtin (same order) → key itself. */
@@ -62,12 +68,37 @@ export function applyPresets(
   const labels = sectioned ? presets.labels ?? {} : { [DEFAULT_LOCALE]: presets };
 
   const mergedFields: FieldSchema[] = meta.fields.map((field) => {
-    const presetWidget = widgetOf(pickEntry(fields, field.key));
-    return {
+    const preset = presetOf(pickEntry(fields, field.key));
+    const {
+      placeholder,
+      disabled,
+      readOnly,
+      options,
+      ...rest
+    } = preset.props;
+
+    let widgetProps = field.widgetProps;
+    const presetWidgetProps: Record<string, any> = {};
+    for (const key of Object.keys(rest)) {
+      if (rest[key] !== undefined) presetWidgetProps[key] = rest[key];
+    }
+    if (Object.keys(presetWidgetProps).length > 0) {
+      widgetProps = { ...presetWidgetProps, ...field.widgetProps };
+    }
+
+    const next: FieldSchema = {
       ...field,
-      widget: field.widget ?? presetWidget,
+      widget: field.widget ?? preset.widget,
       label: field.label ?? resolveLabel(field.key, locale, labels),
+      placeholder: field.placeholder ?? placeholder,
+      disabled:
+        field.disabled ??
+        (meta.disabled === undefined ? disabled : undefined),
+      readOnly: field.readOnly ?? readOnly,
+      options: field.options ?? options,
     };
+    if (widgetProps !== undefined) next.widgetProps = widgetProps;
+    return next;
   });
 
   return { ...meta, fields: mergedFields };

@@ -135,8 +135,17 @@ export interface WidgetDef {
   metaConverter?: (ctx: { field: FieldSchema; meta: FormSchema }) => Partial<FieldSchema>;
 }
 
-/** Preset entry for one key: widget id shorthand, or an object carrying the widget. */
-export type PresetField = string | { widget: Widget };
+/** Preset entry for one key: widget id shorthand, or an object carrying widget props. */
+export interface PresetFieldObject {
+  /** Widget id or component. */
+  widget: Widget;
+  /** Explicit widget props; wins over shorthand props on the same object. */
+  widgetProps?: Record<string, any>;
+  /** Shorthand control props, e.g. placeholder, allowClear, maxLength. */
+  [prop: string]: any;
+}
+
+export type PresetField = string | PresetFieldObject;
 
 /** Sectioned presets: widget per key, and label text per locale. */
 export interface PresetsInput {
