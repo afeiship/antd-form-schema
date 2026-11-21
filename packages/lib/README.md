@@ -34,7 +34,7 @@ function UserForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {visibleFields.map((f) => (
           <div key={f.key} className={f.widget === 'textarea' ? 'md:col-span-2' : ''}>
-            <Form.Item {...f.itemProps} label={f.label} required={f.required}>
+            <Form.Item {...f.props} label={f.label} required={f.required}>
               {f.control}
             </Form.Item>
           </div>
@@ -45,7 +45,7 @@ function UserForm() {
   );
 }
 ```
-`itemProps` contains only data-binding keys (`name`, `rules`, `valuePropName`, `dependencies`, `shouldUpdate`); it deliberately has no `label`/`className`/`style`. Pass `label` to `Form.Item` yourself for accessible labels — layout remains in your JSX.
+`props` contains only data-binding keys (`name`, `rules`, `valuePropName`, `dependencies`, `shouldUpdate`); it deliberately has no `label`/`className`/`style`. Pass `label` to `Form.Item` yourself for accessible labels — layout remains in your JSX.
 
 ## convenience renderer (`FormFields`)
 For simple cases, `FormFields` is a thin vertical wrapper around `Form.Item` and `f.control`:
@@ -111,6 +111,32 @@ const [form] = Form.useForm();
 
 > **Breaking change:** the default export is now an alias of `FormFields` (previously an empty scaffold `div` component). Named exports are the primary API.
 
+## key presets (label + widget)
+
+Define each key's standard shape once — its label (locale-aware) and its widget — then keep schemas to bare keys. Anything you still write on a field always wins.
+
+```yaml
+# presets.yaml
+fields:
+  title: input
+  status: select
+labels:
+  zh-CN:
+    title: 标题
+    status: 状态
+```
+
+```tsx
+import presets from './presets.yaml'; // e.g. Vite + @rollup/plugin-yaml
+<SchemaForm meta={{ fields: [{ key: 'title' }, { key: 'status' }] }} presets={presets} />;
+```
+
+- Priority — widget: `schema.widget` > `presets.fields[key]` > `input`. Label: `schema.label` > `presets.labels[locale][key]` > `presets.labels['zh-CN'][key]` > builtin dictionary > **the key itself**.
+- `locale` defaults to `zh-CN`; a missing language or a missing key silently falls back — no warnings, no errors.
+- A flat single-language table is also accepted: `presets={{ title: '标题', name: '姓名' }}`.
+- Presets never create fields: entries whose key is absent from `meta.fields` are ignored.
+- Only `widget` and `label` are taken from presets; options, placeholder and rules stay in the schema.
+
 ## slots
 
 `SchemaForm` and `SchemaFields` render each field with three replaceable parts (`slots` is a component prop, never a schema key). The `<label htmlFor>`, required mark and error text are always owned by antd `Form.Item`:
@@ -164,7 +190,7 @@ Conditions can be declarative or a function with auto watch paths:
 ```
 
 ## exports
-Named: `useFormSchema`, `FormFields`, `SchemaFields`, `SchemaForm`, `validateMeta`, `normalizeMeta`, `evaluateCondition`, `collectWatchPaths`, type `FormSlots` and all types from `types.ts`.
+Named: `useFormSchema`, `FormFields`, `SchemaFields`, `SchemaForm`, `validateMeta`, `normalizeMeta`, `evaluateCondition`, `collectWatchPaths`, type `FormSlots` and all types from `types.ts` (including `Presets`, `PresetsInput`, `PresetField`).
 Default: `AntdFormSchema` = `FormFields` (with `version`), kept for scaffold compatibility.
 
 ## license

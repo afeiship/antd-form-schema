@@ -30,7 +30,7 @@ export function Harness({
   return (
     <Form form={form} initialValues={meta.initialValues} disabled={meta.disabled}>
       {result.visibleFields.map((field) => (
-        <Form.Item key={field.key} {...field.itemProps}>
+        <Form.Item key={field.key} {...field.props}>
           {field.control}
         </Form.Item>
       ))}
@@ -70,20 +70,20 @@ describe('useFormSchema: conditional visibility', () => {
     expect(captured.result.getField('missing')).toBeUndefined();
   });
 
-  it('itemProps contains data-binding keys only', () => {
+  it('props contains data-binding keys only', () => {
     const meta: FormSchema = {
       fields: [{ key: 'name', label: 'Name', placeholder: 'your name', required: true }],
     };
     let captured!: Captured;
     render(<Harness meta={meta} capture={(value) => { captured = value; }} />);
 
-    const itemProps = captured.result.getField('name')!.itemProps as Record<string, unknown>;
-    expect(Object.keys(itemProps).every((key) =>
+    const props = captured.result.getField('name')!.props as Record<string, unknown>;
+    expect(Object.keys(props).every((key) =>
       ['name', 'rules', 'valuePropName', 'dependencies', 'shouldUpdate'].includes(key),
     )).toBe(true);
-    expect(itemProps).not.toHaveProperty('label');
-    expect(itemProps).not.toHaveProperty('className');
-    expect(itemProps).not.toHaveProperty('style');
+    expect(props).not.toHaveProperty('label');
+    expect(props).not.toHaveProperty('className');
+    expect(props).not.toHaveProperty('style');
   });
 
   it('uses a single-segment name for !!!-literal keys and reads the value from the form', () => {
@@ -91,7 +91,7 @@ describe('useFormSchema: conditional visibility', () => {
     let captured!: Captured;
     render(<Harness meta={meta} capture={(value) => { captured = value; }} />);
 
-    expect(captured.result.getField('!!!a.b')?.itemProps.name).toEqual(['a.b']);
+    expect(captured.result.getField('!!!a.b')?.props.name).toEqual(['a.b']);
     act(() => {
       captured.form.setFieldsValue({ 'a.b': 42 });
     });
@@ -143,7 +143,7 @@ describe('useFormSchema: conditional visibility', () => {
 });
 
 describe('useFormSchema: BoundField passthrough', () => {
-  it('surfaces field.initialValue on BoundField but not in itemProps', () => {
+  it('surfaces field.initialValue on BoundField but not in props', () => {
     const meta: FormSchema = {
       fields: [{ key: 'rating', initialValue: 3, required: true }],
     };
@@ -152,7 +152,7 @@ describe('useFormSchema: BoundField passthrough', () => {
 
     const field = captured.result.getField('rating')!;
     expect(field.initialValue).toBe(3);
-    expect(field.itemProps).not.toHaveProperty('initialValue');
+    expect(field.props).not.toHaveProperty('initialValue');
     expect(captured.form.getFieldValue('rating')).toBeUndefined();
   });
 });

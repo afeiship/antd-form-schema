@@ -26,13 +26,13 @@ function mapOrNull<T, R>(value: T | T[], fn: (v: T) => R): R | R[] | T | T[] {
 /** Date widgets: convert stored form values per field.valueType ('dayjs' = untouched). */
 const dateConverter: Converter = ({ field }: ConverterContext) => {
   const widgetProps: Record<string, any> = {};
-  const itemProps: Record<string, any> = {};
+  const props: Record<string, any> = {};
   if (field.valueType === 'string' || field.valueType === 'timestamp' || field.valueType === 'number') {
     const isString = field.valueType === 'string';
     const format = field.valueFormat ?? 'YYYY-MM-DD';
     // Outbound: rc-field-form calls getValueFromEvent(args) BEFORE dispatching to the
     // store, so this (not an onChange wrapper) is the only hook that actually converts.
-    itemProps.getValueFromEvent = (value: any) => {
+    props.getValueFromEvent = (value: any) => {
       if (value == null) return value;
       if (isString) {
         return Array.isArray(value) ? value.map((v) => (v == null ? v : dayjs(v).format(format))) : dayjs(value).format(format);
@@ -40,11 +40,11 @@ const dateConverter: Converter = ({ field }: ConverterContext) => {
       return Array.isArray(value) ? value.map((v) => (v == null ? v : dayjs(v).valueOf())) : dayjs(value).valueOf();
     };
     // Inbound (Form.Item): stored string/ms -> dayjs so the picker can render it.
-    itemProps.getValueProps = (value: any) => ({
+    props.getValueProps = (value: any) => ({
       value: mapOrNull(value, (v) => (isString ? dayjs(v, format) : dayjs(Number(v)))),
     });
   }
-  return { widgetProps, itemProps };
+  return { widgetProps, props };
 };
 
 /** Build option children with a stable key for each normalized option. */
@@ -127,7 +127,7 @@ export const WIDGETS: Record<string, WidgetDef> = {
       const converted = dateConverter(ctx);
       return {
         widgetProps: { showTime: true, ...converted.widgetProps },
-        itemProps: converted.itemProps,
+        props: converted.props,
       };
     },
   },
@@ -161,8 +161,8 @@ export function applyConverter(
   if (field.widgetProps || patch.widgetProps) {
     result.widgetProps = { ...field.widgetProps, ...patch.widgetProps };
   }
-  if (patch.itemProps) {
-    result.itemProps = { ...(result as any).itemProps, ...patch.itemProps };
+  if (patch.props) {
+    result.props = { ...result.props, ...patch.props };
   }
   return result;
 }

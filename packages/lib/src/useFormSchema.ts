@@ -3,6 +3,7 @@ import { createElement, useMemo } from 'react';
 import { getItemProps, getControlProps } from './core/bind';
 import { evaluateCondition } from './core/condition';
 import { normalizeMeta } from './core/normalize';
+import { applyPresets } from './core/presets';
 import { get } from './core/utils';
 import { validateMeta } from './core/validate';
 import { applyConverter, resolveWidget, WIDGETS } from './widgets';
@@ -26,11 +27,20 @@ export function useFormSchema(
 ): UseFormSchemaResult {
   const validate = options?.validate;
   const widgets = options?.widgets;
+  const presets = options?.presets;
+  const locale = options?.locale;
+
+  // Presets merge before validation so a bad preset widget id is caught by validateMeta.
+  const activeMeta = useMemo(
+    () => applyPresets(meta, presets, locale),
+    [meta, presets, locale],
+  );
+
   const issues: Issue[] = useMemo(() => {
     const found: Issue[] = [];
     if (validate !== false && isDev) {
       const mergedWidgets = { ...WIDGETS, ...widgets };
-      found.push(...validateMeta(meta, mergedWidgets));
+      found.push(...validateMeta(activeMeta, mergedWidgets));
       for (const issue of found) {
         console.warn(issue.message);
       }
@@ -40,9 +50,9 @@ export function useFormSchema(
       }
     }
     return found;
-  }, [meta, validate, widgets]);
+  }, [activeMeta, validate, widgets]);
 
-  const normalized = normalizeMeta(meta);
+  const normalized = normalizeMeta(activeMeta);
   // Watch-all is intentional: useWatch returns only a rerender trigger, values are read fresh below.
   Form.useWatch([], form);
   const values = form.getFieldsValue(true);
@@ -60,10 +70,10 @@ export function useFormSchema(
     const renderField = viewDef ? applyConverter(converted, viewDef, meta) : converted;
     const WidgetComponent = viewDef ? viewDef.component : def.component;
 
-    const itemProps = getItemProps(converted, {
+    const props = getItemProps(converted, {
       valuePropName: isView ? 'initialValue' : converted.valuePropName,
     });
-    if ((converted as any).itemProps) Object.assign(itemProps, (converted as any).itemProps);
+    if (converted.props) Object.assign(props, converted.props);
     const controlProps = getControlProps(converted);
     const renderProps = viewDef
       ? { ...getControlProps(renderField), initialValue: get(values, converted.name) }
@@ -89,7 +99,7 @@ export function useFormSchema(
       disabled: converted.disabled,
       viewMode: isView,
       visible,
-      itemProps,
+      props,
       control,
       controlProps,
       initialValue: converted.initialValue,

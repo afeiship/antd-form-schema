@@ -30,7 +30,7 @@ function Harness({
   return (
     <Form form={form} initialValues={meta.initialValues}>
       {result.visibleFields.map((field) => (
-        <Form.Item key={field.key} {...field.itemProps}>
+        <Form.Item key={field.key} {...field.props}>
           {field.control}
         </Form.Item>
       ))}
@@ -52,7 +52,7 @@ describe('useFormSchema: view mode', () => {
 
     const field = captured.result.getField('name')!;
     expect(field.viewMode).toBe(true);
-    expect(field.itemProps.valuePropName).toBe('initialValue');
+    expect(field.props.valuePropName).toBe('initialValue');
     expect(field.viewContent).toBeDefined();
     expect(container).toHaveTextContent('Alice');
   });
@@ -83,10 +83,10 @@ describe('useFormSchema: view mode', () => {
     let captured!: Captured;
     render(<Harness meta={meta} capture={(value) => { captured = value; }} />);
 
-    expect(captured.result.getField('name')?.itemProps.valuePropName).toBe('initialValue');
+    expect(captured.result.getField('name')?.props.valuePropName).toBe('initialValue');
     const note = captured.result.getField('note')!;
     expect(note.viewMode).toBe(false);
-    expect(note.itemProps.valuePropName).not.toBe('initialValue');
+    expect(note.props.valuePropName).not.toBe('initialValue');
   });
 
   it('renders a custom viewWidget escape hatch', () => {

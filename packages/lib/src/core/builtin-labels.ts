@@ -1,0 +1,48 @@
+/**
+ * Built-in label dictionaries for the most common keys.
+ * Locale keys are intentionally shallow: missing locales / keys silently fall back to zh-CN.
+ */
+export const BUILTIN_LABELS: Record<string, Record<string, string>> = {
+  'zh-CN': {
+    title: '标题',
+    name: '姓名',
+    nickname: '昵称',
+    email: '邮箱',
+    phone: '手机号',
+    mobile: '手机号',
+    password: '密码',
+    avatar: '头像',
+    status: '状态',
+    remark: '备注',
+    description: '描述',
+    content: '内容',
+    address: '地址',
+    type: '类型',
+    code: '编码',
+    sort: '排序',
+    enabled: '是否启用',
+    createdAt: '创建时间',
+    updatedAt: '更新时间',
+  },
+  'en-US': {
+    title: 'Title',
+    name: 'Name',
+    nickname: 'Nickname',
+    email: 'Email',
+    phone: 'Phone',
+    mobile: 'Mobile',
+    password: 'Password',
+    avatar: 'Avatar',
+    status: 'Status',
+    remark: 'Remark',
+    description: 'Description',
+    content: 'Content',
+    address: 'Address',
+    type: 'Type',
+    code: 'Code',
+    sort: 'Sort',
+    enabled: 'Enabled',
+    createdAt: 'Created At',
+    updatedAt: 'Updated At',
+  },
+};

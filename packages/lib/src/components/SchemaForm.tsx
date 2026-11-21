@@ -30,6 +30,8 @@ const SchemaForm: FC<SchemaFormProps> = ({
   widgets,
   classNames,
   slots,
+  presets,
+  locale,
   onFormReady,
   normalizeValues,
   loading,
@@ -67,7 +69,14 @@ const SchemaForm: FC<SchemaFormProps> = ({
       initialValues={activeMeta.initialValues}
       className={formClass}
     >
-      <SchemaFields meta={activeMeta} widgets={widgets} classNames={fieldClassNames} slots={slots} />
+      <SchemaFields
+        meta={activeMeta}
+        widgets={widgets}
+        classNames={fieldClassNames}
+        slots={slots}
+        presets={presets}
+        locale={locale}
+      />
       {children}
     </Form>
   );

@@ -120,10 +120,10 @@ describe('valueType', () => {
       const compiled = convert(id, { valueType: 'string' });
       const day = dayjs('2024-01-15T10:30:00');
       // dispatch: getValueFromEvent is what rc-field-form calls before writing to store
-      expect(compiled.itemProps?.getValueFromEvent?.(day), id).toBe('2024-01-15');
-      expect(compiled.itemProps?.getValueFromEvent?.([day, day]), id).toEqual(['2024-01-15', '2024-01-15']);
+      expect(compiled.props?.getValueFromEvent?.(day), id).toBe('2024-01-15');
+      expect(compiled.props?.getValueFromEvent?.([day, day]), id).toEqual(['2024-01-15', '2024-01-15']);
       // echo: getValueProps turns the string back into a dayjs for the picker
-      const echoed = compiled.itemProps?.getValueProps?.('2024-01-15').value;
+      const echoed = compiled.props?.getValueProps?.('2024-01-15').value;
       expect(echoed?.format?.('YYYY-MM-DD'), id).toBe('2024-01-15');
     }
   });
@@ -133,29 +133,29 @@ describe('valueType', () => {
       valueType: 'string',
       valueFormat: 'YYYY/MM/DD',
     });
-    expect(compiled.itemProps?.getValueFromEvent?.(dayjs('2024-01-15T10:30:00'))).toBe('2024/01/15');
-    expect(compiled.itemProps?.getValueProps?.('2024/01/15').value?.format('YYYY-MM-DD')).toBe('2024-01-15');
+    expect(compiled.props?.getValueFromEvent?.(dayjs('2024-01-15T10:30:00'))).toBe('2024/01/15');
+    expect(compiled.props?.getValueProps?.('2024/01/15').value?.format('YYYY-MM-DD')).toBe('2024-01-15');
   });
 
   it('stores ms timestamps for valueType timestamp', () => {
     const compiled = convert('date-picker', { valueType: 'timestamp' });
     const day = dayjs('2024-01-15T10:30:00');
-    expect(compiled.itemProps?.getValueFromEvent?.(day)).toBe(day.valueOf());
-    expect(compiled.itemProps?.getValueFromEvent?.([day])).toEqual([day.valueOf()]);
+    expect(compiled.props?.getValueFromEvent?.(day)).toBe(day.valueOf());
+    expect(compiled.props?.getValueFromEvent?.([day])).toEqual([day.valueOf()]);
     // echo: number (or string ms) -> dayjs
-    const echoed = compiled.itemProps?.getValueProps?.(1705311000000).value;
+    const echoed = compiled.props?.getValueProps?.(1705311000000).value;
     expect(echoed?.format?.('YYYY-MM-DD')).toBe('2024-01-15');
   });
 
   it('ignores valueType on non-date widgets', () => {
     expect(convert('input', { valueType: 'string' }).widgetProps).toBeUndefined();
-    expect(convert('input', { valueType: 'string' }).itemProps).toBeUndefined();
+    expect(convert('input', { valueType: 'string' }).props).toBeUndefined();
   });
 
   it('does not convert values for dayjs (default)', () => {
     const compiled = convert('date-picker');
-    expect(compiled.itemProps?.getValueFromEvent).toBeUndefined();
-    expect(compiled.itemProps?.getValueProps).toBeUndefined();
+    expect(compiled.props?.getValueFromEvent).toBeUndefined();
+    expect(compiled.props?.getValueProps).toBeUndefined();
   });
 });
 

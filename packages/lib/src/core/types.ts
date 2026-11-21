@@ -54,6 +54,8 @@ export interface FieldSchema {
   /** Native antd linkage, forwarded as-is. */
   dependencies?: NamePath[];
   shouldUpdate?: FormItemProps['shouldUpdate'];
+  /** Extra Form.Item props merged over the derived data-binding props (e.g. `colon: false`). */
+  props?: Partial<FormItemProps>;
   valuePropName?: string;
   /** Form-level value type; date widgets convert outbound values. Default 'dayjs' (no conversion). */
   valueType?: 'dayjs' | 'string' | 'number' | 'timestamp';
@@ -109,11 +111,27 @@ export interface WidgetDef {
   metaConverter?: (ctx: { field: FieldSchema; meta: FormSchema }) => Partial<FieldSchema>;
 }
 
+/** Preset entry for one key: widget id shorthand, or an object carrying the widget. */
+export type PresetField = string | { widget: Widget };
+
+/** Sectioned presets: widget per key, and label text per locale. */
+export interface PresetsInput {
+  fields?: Record<string, PresetField>;
+  labels?: Record<string, Record<string, string>>;
+}
+
+/** Presets prop: a sectioned file, or a flat single-language label table. */
+export type Presets = PresetsInput | Record<string, string>;
+
 export interface UseFormSchemaOptions {
   /** Local widget registrations / overrides, taking precedence over builtin widgets. */
   widgets?: Record<string, WidgetDef>;
   /** Meta validation switch, enabled in development by default. */
   validate?: boolean;
+  /** Per-key presets: widget and locale-aware label. */
+  presets?: Presets;
+  /** Locale used to pick preset labels; defaults to 'zh-CN'. */
+  locale?: string;
 }
 
 export interface BoundField {
@@ -134,8 +152,8 @@ export interface BoundField {
   initialValue?: any;
   /** Condition result: false means the field should not be rendered. */
   visible: boolean;
-  /** Data binding props only: name / rules / valuePropName / dependencies / shouldUpdate. */
-  itemProps: FormItemProps;
+  /** Form.Item props: data binding keys plus any `field.props` overrides. */
+  props: FormItemProps;
   control: ReactNode;
   controlProps: Record<string, any>;
   WidgetComponent?: ComponentType<any>;
