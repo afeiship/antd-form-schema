@@ -30,7 +30,7 @@ export function Harness({
   return (
     <Form form={form} initialValues={meta.initialValues} disabled={meta.disabled}>
       {result.visibleFields.map((field) => (
-        <Form.Item key={field.key} {...field.props}>
+        <Form.Item key={field.key} {...field.itemProps}>
           {field.control}
         </Form.Item>
       ))}
@@ -77,7 +77,7 @@ describe('useFormSchema: conditional visibility', () => {
     let captured!: Captured;
     render(<Harness meta={meta} capture={(value) => { captured = value; }} />);
 
-    const props = captured.result.getField('name')!.props as Record<string, unknown>;
+    const props = captured.result.getField('name')!.itemProps as Record<string, unknown>;
     expect(Object.keys(props).every((key) =>
       ['name', 'rules', 'valuePropName', 'dependencies', 'shouldUpdate'].includes(key),
     )).toBe(true);
@@ -91,7 +91,7 @@ describe('useFormSchema: conditional visibility', () => {
     let captured!: Captured;
     render(<Harness meta={meta} capture={(value) => { captured = value; }} />);
 
-    expect(captured.result.getField('!!!a.b')?.props.name).toEqual(['a.b']);
+    expect(captured.result.getField('!!!a.b')?.itemProps.name).toEqual(['a.b']);
     act(() => {
       captured.form.setFieldsValue({ 'a.b': 42 });
     });
@@ -152,7 +152,7 @@ describe('useFormSchema: BoundField passthrough', () => {
 
     const field = captured.result.getField('rating')!;
     expect(field.initialValue).toBe(3);
-    expect(field.props).not.toHaveProperty('initialValue');
+    expect(field.itemProps).not.toHaveProperty('initialValue');
     expect(captured.form.getFieldValue('rating')).toBeUndefined();
   });
 });

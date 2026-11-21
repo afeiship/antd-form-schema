@@ -16,7 +16,7 @@ const FormFields: FormFieldsComponent = ({ fields, className, ...rest }) => (
   <div data-component={CLASS_NAME} className={cx(CLASS_NAME, className)} {...rest}>
     {fields.filter((field) => field.visible).map((field) => (
       <div key={field.key}>
-        <Form.Item {...field.props} label={field.label} required={field.required}>
+        <Form.Item {...field.itemProps} label={field.label} required={field.required}>
           {field.control}
         </Form.Item>
       </div>

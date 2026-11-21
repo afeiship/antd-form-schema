@@ -55,7 +55,7 @@ export interface FieldSchema {
   dependencies?: NamePath[];
   shouldUpdate?: FormItemProps['shouldUpdate'];
   /** Extra Form.Item props merged over the derived data-binding props (e.g. `colon: false`). */
-  props?: Partial<FormItemProps>;
+  itemProps?: Partial<FormItemProps>;
   valuePropName?: string;
   /** Form-level value type; date widgets convert outbound values. Default 'dayjs' (no conversion). */
   valueType?: 'dayjs' | 'string' | 'number' | 'timestamp';
@@ -152,8 +152,8 @@ export interface BoundField {
   initialValue?: any;
   /** Condition result: false means the field should not be rendered. */
   visible: boolean;
-  /** Form.Item props: data binding keys plus any `field.props` overrides. */
-  props: FormItemProps;
+  /** Form.Item props: data binding keys plus any `field.itemProps` overrides. */
+  itemProps: FormItemProps;
   control: ReactNode;
   controlProps: Record<string, any>;
   WidgetComponent?: ComponentType<any>;

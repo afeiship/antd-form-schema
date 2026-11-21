@@ -14,7 +14,7 @@ function makeField(overrides: Partial<BoundField> = {}): BoundField {
     required: true,
     visible: true,
     viewMode: false,
-    props: { name: 'name' },
+    itemProps: { name: 'name' },
     control: <input id="name" />,
     controlProps: {},
     ...overrides,

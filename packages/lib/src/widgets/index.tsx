@@ -44,7 +44,7 @@ const dateConverter: Converter = ({ field }: ConverterContext) => {
       value: mapOrNull(value, (v) => (isString ? dayjs(v, format) : dayjs(Number(v)))),
     });
   }
-  return { widgetProps, props };
+  return { widgetProps, itemProps: props };
 };
 
 /** Build option children with a stable key for each normalized option. */
@@ -127,7 +127,7 @@ export const WIDGETS: Record<string, WidgetDef> = {
       const converted = dateConverter(ctx);
       return {
         widgetProps: { showTime: true, ...converted.widgetProps },
-        props: converted.props,
+        itemProps: converted.itemProps,
       };
     },
   },
@@ -161,8 +161,8 @@ export function applyConverter(
   if (field.widgetProps || patch.widgetProps) {
     result.widgetProps = { ...field.widgetProps, ...patch.widgetProps };
   }
-  if (patch.props) {
-    result.props = { ...result.props, ...patch.props };
+  if (patch.itemProps) {
+    result.itemProps = { ...result.itemProps, ...patch.itemProps };
   }
   return result;
 }

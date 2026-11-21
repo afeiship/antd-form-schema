@@ -34,7 +34,7 @@ function UserForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {visibleFields.map((f) => (
           <div key={f.key} className={f.widget === 'textarea' ? 'md:col-span-2' : ''}>
-            <Form.Item {...f.props} label={f.label} required={f.required}>
+            <Form.Item {...f.itemProps} label={f.label} required={f.required}>
               {f.control}
             </Form.Item>
           </div>
@@ -45,7 +45,7 @@ function UserForm() {
   );
 }
 ```
-`props` contains only data-binding keys (`name`, `rules`, `valuePropName`, `dependencies`, `shouldUpdate`); it deliberately has no `label`/`className`/`style`. Pass `label` to `Form.Item` yourself for accessible labels — layout remains in your JSX.
+`itemProps` contains only data-binding keys (`name`, `rules`, `valuePropName`, `dependencies`, `shouldUpdate`); it deliberately has no `label`/`className`/`style`. Pass `label` to `Form.Item` yourself for accessible labels — layout remains in your JSX.
 
 ## convenience renderer (`FormFields`)
 For simple cases, `FormFields` is a thin vertical wrapper around `Form.Item` and `f.control`:

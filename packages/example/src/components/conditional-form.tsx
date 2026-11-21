@@ -61,7 +61,7 @@ export default function ConditionalForm() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {visibleFields.map((field) => (
           <div key={field.key}>
-            <Form.Item {...field.props} label={field.label} required={field.required}>
+            <Form.Item {...field.itemProps} label={field.label} required={field.required}>
               {field.control}
             </Form.Item>
           </div>

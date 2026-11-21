@@ -75,7 +75,7 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
         const finalControl = controlClass ? withClassName(control, controlClass) : control;
         const item = (
           <Form.Item
-            {...field.props}
+            {...field.itemProps}
             key={field.key}
             label={labelNode}
             className={classNames?.field}
