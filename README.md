@@ -105,6 +105,10 @@ const meta: FormSchema = {
 - Form-wide defaults live on the schema: `meta.converters` maps a field key to a converter id, and a field's own `converter` wins over it.
 - A converter cannot be combined with `valueType`; omit it for zero behavior change.
 - An unregistered converter id is a fatal error. Throwing inside a converter falls back to the raw value and warns in dev.
+- Chains are arrays: `read` runs left to right, `write` runs right to left, so every step must be reversible.
+  `converter: ['money', 'fixed2']` shows `1999` as `"19.99"` and stores `"20.50"` as `2050`.
+- `meta.converters` accepts the same array form. A field's own `converter` replaces the whole chain.
+- A chain longer than one warns in dev when a member has no `write`; an empty array means no conversion.
 - Fields without a converter are untouched; `getValueProps` / `getValueFromEvent` set directly on the field still win.
 
 ## license
