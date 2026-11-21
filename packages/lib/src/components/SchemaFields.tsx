@@ -51,7 +51,7 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
   // Hooks must run unconditionally (React rules of hooks); placeholders decide below.
   const form = Form.useFormInstance();
   if (!form) throw new Error('SchemaFields must be used inside a <Form>.');
-  const { visibleFields } = useFormSchema(resolved ?? { fields: [] }, form, {
+  const { renderableFields } = useFormSchema(resolved ?? { fields: [] }, form, {
     widgets,
     presets,
     locale,
@@ -63,7 +63,7 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
 
   return (
     <>
-      {visibleFields.map((field) => {
+      {renderableFields.map((field) => {
         const labelContent = slots?.label
           ? renderSlot(slots.label, { field }, field.key + '-label')
           : renderLabel({ field });
@@ -77,7 +77,11 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
           : renderControl({ field, control: field.control });
         const controlClass = mergeClasses(classNames?.control, field.className);
         const finalControl = controlClass ? withClassName(control, controlClass) : control;
-        const item = (
+        const item = field.hidden ? (
+          <Form.Item {...field.itemProps} key={field.key} hidden>
+            {field.control}
+          </Form.Item>
+        ) : (
           <Form.Item
             {...field.itemProps}
             key={field.key}

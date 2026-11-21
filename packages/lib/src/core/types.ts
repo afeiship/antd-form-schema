@@ -49,6 +49,8 @@ export interface FieldSchema {
   readOnly?: boolean;
   /** Field-level view mode overrides form-level. */
   viewMode?: boolean;
+  /** Never render any UI; keep the value in the store and submit it. */
+  hidden?: boolean;
   /** Dependencies explicitly declared for function conditions (used by auto watch). */
   watch?: NamePath[];
   /** Native antd linkage, forwarded as-is. */
@@ -173,6 +175,7 @@ export interface BoundField {
   options?: NormalizedOption[];
   required?: boolean;
   viewMode: boolean;
+  hidden?: boolean;
   disabled?: boolean;
   /** Field-level initialValue as passthrough data; the hook never seeds form state with it. */
   initialValue?: any;
@@ -196,6 +199,8 @@ export interface Issue {
 export interface UseFormSchemaResult {
   fields: BoundField[];
   visibleFields: BoundField[];
+  /** Fields whose Form.Item must mount: visible ones plus hidden value-carriers. */
+  renderableFields: BoundField[];
   getField(key: string): BoundField | undefined;
   issues: Issue[];
 }

@@ -64,9 +64,9 @@ export function useFormSchema(
   const values = form.getFieldsValue(true);
 
   const fields: BoundField[] = normalized.fields.map((field): BoundField => {
-    const visible = field.condition
+    const visible = !field.hidden && (field.condition
       ? evaluateCondition(field.condition, { form, values })
-      : true;
+      : true);
     const def = resolveWidget(field.widget, options?.widgets);
     const converted = applyConverter(field, def, meta);
     const isView = field.viewMode ?? meta.viewMode ?? false;
@@ -115,6 +115,7 @@ export function useFormSchema(
       required: field.required,
       disabled: converted.disabled,
       viewMode: isView,
+      hidden: field.hidden,
       visible,
       itemProps: props,
       control,
@@ -128,6 +129,7 @@ export function useFormSchema(
   return {
     fields,
     visibleFields: fields.filter((field) => field.visible),
+    renderableFields: fields.filter((field) => field.visible || field.hidden),
     getField: (key) => fields.find((field) => field.key === key),
     issues,
   };
