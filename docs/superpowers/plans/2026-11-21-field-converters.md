@@ -47,10 +47,10 @@
 - `applyFieldConverter(field, itemProps, converter, ctx, viewMode): FormItemProps`
 - `runConverter(fn, value, ctx, direction): any`（内部 try/catch）
 
-- [ ] **Step 1: 类型** — 在 `types.ts` 增加上述类型与字段，`BoundField` 增加 `converter` 便于调试。
-- [ ] **Step 2: 写失败测试** — 覆盖 `resolveConverter` 命中/未命中；`read` 回显换算、`write` 写回；`null` 透传；`target.value` / `target.checked` 提取；抛错回退原值并 warn。
-- [ ] **Step 3: 实现 core/converters.ts** — 生成/合并 `getValueProps` 与 `getValueFromEvent`；未命中时返回原 `itemProps`；`viewMode` 下只处理 `read`。
-- [ ] **Step 4: 单测通过** — `cd packages/lib && ./node_modules/.bin/vitest run __tests__/13-converters.spec.ts`。
+- [x] **Step 1: 类型** — 在 `types.ts` 增加上述类型与字段，`BoundField` 增加 `converter` 便于调试。
+- [x] **Step 2: 写失败测试** — 覆盖 `resolveConverter` 命中/未命中；`read` 回显换算、`write` 写回；`null` 透传；`target.value` / `target.checked` 提取；抛错回退原值并 warn。
+- [x] **Step 3: 实现 core/converters.ts** — 生成/合并 `getValueProps` 与 `getValueFromEvent`；未命中时返回原 `itemProps`；`viewMode` 下只处理 `read`。
+- [x] **Step 4: 单测通过** — `cd packages/lib && ./node_modules/.bin/vitest run __tests__/13-converters.spec.ts`。
 
 ---
 
@@ -68,12 +68,12 @@
 - `SchemaFieldsProps` / `SchemaFormProps` 新增 `converters?: Record<string, FieldConverter>`，并从 `rest` 中解构掉。
 - `validateMeta(meta, widgets?, converters?)`：未知 id 报 error；`converter + valueType` 报 error。
 
-- [ ] **Step 1: 写失败测试** — 渲染级：money 初始 1999 显示 19.99；输入 20.5 提交后为 2050；`viewMode` 显示 19.99；`itemProps.getValueProps` 覆盖 converter；`converter + valueType` 触发错误。
-- [ ] **Step 2: hook 接入** — `resolveConverter(field.converter, options?.converters)`；`applyFieldConverter` 在 `getItemProps` 之后、`converted.itemProps` 之前；视图态 `initialValue` 先过 `read`。
-- [ ] **Step 3: 组件透传** — `SchemaForm` 解构 `converters` 后传给 `SchemaFields`；`SchemaFields` 传给 hook。
-- [ ] **Step 4: 校验** — `validateMeta` 增加 converters 参数与两条规则；hook 把 `options?.converters` 传入。
-- [ ] **Step 5: 导出** — `FieldConverter`、`ConverterContext` 通过 `export type *` 可见，确认 `index.tsx` 无需新增显式导出。
-- [ ] **Step 6: 全量回归** — `cd packages/lib && ./node_modules/.bin/vitest run`，确认既有 128 项 + 新增全绿；`./node_modules/.bin/tsc --noEmit -p tsconfig.json`。
+- [x] **Step 1: 写失败测试** — 渲染级：money 初始 1999 显示 19.99；输入 20.5 提交后为 2050；`viewMode` 显示 19.99；`itemProps.getValueProps` 覆盖 converter；`converter + valueType` 触发错误。
+- [x] **Step 2: hook 接入** — `resolveConverter(field.converter, options?.converters)`；`applyFieldConverter` 在 `getItemProps` 之后、`converted.itemProps` 之前；视图态 `initialValue` 先过 `read`。
+- [x] **Step 3: 组件透传** — `SchemaForm` 解构 `converters` 后传给 `SchemaFields`；`SchemaFields` 传给 hook。
+- [x] **Step 4: 校验** — `validateMeta` 增加 converters 参数与两条规则；hook 把 `options?.converters` 传入。
+- [x] **Step 5: 导出** — `FieldConverter`、`ConverterContext` 通过 `export type *` 可见，确认 `index.tsx` 无需新增显式导出。
+- [x] **Step 6: 全量回归** — `cd packages/lib && ./node_modules/.bin/vitest run`，确认既有 128 项 + 新增全绿；`./node_modules/.bin/tsc --noEmit -p tsconfig.json`。
 
 ---
 
@@ -85,10 +85,10 @@
 - Modify: `packages/example/src/app.tsx`
 - Modify: `docs/superpowers/plans/2026-11-21-field-converters.md`（勾选完成项）
 
-- [ ] **Step 1: README** — 增加 `converters` 段：注册表、schema 只写 id、`read` / `write` 方向、只读 `values` 边界、与 `valueType` 互斥、`itemProps` 优先。
-- [ ] **Step 2: example** — 新 demo 用 `money` / `percent` / `json` 三个 converter，展示初始回显与提交值；`app.tsx` 增加导航项。
-- [ ] **Step 3: 构建与类型检查** — `cd packages/example && ../lib/node_modules/.bin/tsc --noEmit -p tsconfig.json`。
-- [ ] **Step 4: 提交** — 分两次提交：`feat(lib): per-field converters` 与 `feat(example): add converters demo`；不 push。
+- [x] **Step 1: README** — 增加 `converters` 段：注册表、schema 只写 id、`read` / `write` 方向、只读 `values` 边界、与 `valueType` 互斥、`itemProps` 优先。
+- [x] **Step 2: example** — 新 demo 用 `money` / `percent` / `json` 三个 converter，展示初始回显与提交值；`app.tsx` 增加导航项。
+- [x] **Step 3: 构建与类型检查** — `cd packages/example && ../lib/node_modules/.bin/tsc --noEmit -p tsconfig.json`。
+- [x] **Step 4: 提交** — 分两次提交：`feat(lib): per-field converters` 与 `feat(example): add converters demo`；不 push。
 
 ## 规模
 
