@@ -3,6 +3,7 @@ import { createElement, useMemo } from 'react';
 import { getItemProps, getControlProps } from './core/bind';
 import { evaluateCondition } from './core/condition';
 import { applyFieldConverter, readConvertedValue, resolveConverterChain } from './core/converters';
+import { getSchemaFormDefaults, mergePresets } from './core/defaults';
 import { normalizeMeta } from './core/normalize';
 import { applyPresets } from './core/presets';
 import { get } from './core/utils';
@@ -28,9 +29,16 @@ export function useFormSchema(
 ): UseFormSchemaResult {
   const validate = options?.validate;
   const widgets = options?.widgets;
-  const presets = options?.presets;
-  const locale = options?.locale;
-  const converters = options?.converters;
+  const presets = useMemo(
+    () => mergePresets(getSchemaFormDefaults().presets, options?.presets),
+    [options?.presets],
+  );
+  const locale = options?.locale ?? getSchemaFormDefaults().locale ?? 'zh-CN';
+  const converters = useMemo(() => {
+    const defaults = getSchemaFormDefaults().converters;
+    if (!defaults && !options?.converters) return undefined;
+    return { ...defaults, ...options?.converters };
+  }, [options?.converters]);
 
   // Presets merge before validation so a bad preset widget id is caught by validateMeta.
   const activeMeta = useMemo(
