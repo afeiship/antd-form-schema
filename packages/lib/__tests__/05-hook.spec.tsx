@@ -79,7 +79,7 @@ describe('useFormSchema: conditional visibility', () => {
 
     const props = captured.result.getField('name')!.itemProps as Record<string, unknown>;
     expect(Object.keys(props).every((key) =>
-      ['name', 'rules', 'valuePropName', 'dependencies', 'shouldUpdate'].includes(key),
+      ['name', 'rules', 'valuePropName', 'getValueFromEvent', 'dependencies', 'shouldUpdate'].includes(key),
     )).toBe(true);
     expect(props).not.toHaveProperty('label');
     expect(props).not.toHaveProperty('className');

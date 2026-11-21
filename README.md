@@ -171,6 +171,20 @@ configureSchemaForm({
 - `getSchemaFormDefaults()` returns a snapshot; `resetSchemaFormDefaults()` clears everything (useful in tests and HMR).
 - The config is module-level state. SSR multi-tenant apps should use per-form props instead.
 
+## custom widget values
+Custom widgets can call `onChange` with either the value itself or an event-like `{ target: { value } }`. Ant Design's `Form.Item` already unwraps the latter, so no per-widget adapter is needed:
+
+```tsx
+// both work with the same schema entry
+<AcInput onChange={(value) => onChange?.(value)} />
+<AcEditableTagGroup onChange={(event) => onChange?.(event)} />
+```
+
+- `{ target: { value } }` is normalized by the built-in `getValueFromEvent`, shared by every schema field, before it reaches the form store.
+- Raw values pass through unchanged.
+- A field-level `itemProps.getValueFromEvent` or converter-supplied implementation still wins.
+- Use `field.valuePropName` for `checked`-style widgets, and `field.itemProps` for custom `getValueFromEvent` / `getValueProps` when a widget needs different semantics.
+
 ## field converters
 A converter adapts one field between its stored value and its control value. Register converters once and reference them by id in the schema; the field keeps its own key and nothing else changes.
 

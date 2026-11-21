@@ -1,6 +1,6 @@
 import { Form } from 'antd';
 import { createElement, useMemo } from 'react';
-import { getItemProps, getControlProps } from './core/bind';
+import { getControlProps, getItemProps, getValueFromEvent } from './core/bind';
 import { evaluateCondition } from './core/condition';
 import { applyFieldConverter, readConvertedValue, resolveConverterChain } from './core/converters';
 import { getSchemaFormDefaults, mergePresets } from './core/defaults';
@@ -97,6 +97,11 @@ export function useFormSchema(
       props = applyFieldConverter(props, chain, converterCtx, isView);
     }
     if (converted.itemProps) Object.assign(props, converted.itemProps);
+    // Built in: widgets may emit a value or an event-like `{ target: { value } }`.
+    // A custom field-level getValueFromEvent always wins.
+    if (!props.getValueFromEvent) {
+      props.getValueFromEvent = getValueFromEvent(props.valuePropName ?? 'value');
+    }
     const controlProps = getControlProps(converted);
     const storedValue = get(values, converted.name);
     const viewValue = readConvertedValue(storedValue, chain, converted, values, activeMeta);

@@ -32,3 +32,13 @@ export function getControlProps(field: NormalizedField, extras?: Record<string, 
     ...extras,
   };
 }
+
+/** Ant Design default event reader, exposed so every schema field shares it. */
+export function getValueFromEvent(valuePropName = 'value') {
+  return (event: any) => {
+    if (event && typeof event === 'object' && event.target && typeof event.target === 'object') {
+      if (valuePropName in event.target) return event.target[valuePropName];
+    }
+    return event;
+  };
+}

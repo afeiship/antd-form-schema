@@ -63,6 +63,28 @@ describe('SchemaFields', () => {
 });
 
 describe('SchemaForm', () => {
+  it('unwraps { target: { value } } from custom widgets into the form store', () => {
+    const onFormReady = vi.fn();
+    const EmitTarget = ({ value, onChange }: any) => (
+      <button
+        type="button"
+        onClick={() => onChange?.({ target: { value: [...(value ?? []), 'a'] } })}
+      >
+        add
+      </button>
+    );
+    render(
+      <SchemaForm
+        meta={{ fields: [{ key: 'tags', widget: EmitTarget }] }}
+        onFormReady={onFormReady}
+      >
+        <span />
+      </SchemaForm>,
+    );
+    fireEvent.click(screen.getByText('add'));
+    expect(onFormReady.mock.calls[0][0].getFieldsValue()).toEqual({ tags: ['a'] });
+  });
+
   it('creates an internal form and applies meta.initialValues', () => {
     render(
       <SchemaForm
