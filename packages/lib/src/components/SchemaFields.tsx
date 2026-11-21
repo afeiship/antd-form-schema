@@ -1,5 +1,5 @@
 import { renderSlot } from '@jswork/react-list';
-import { Form } from 'antd';
+import { Form, Spin } from 'antd';
 import { cloneElement, isValidElement } from 'react';
 import type { FC, ReactElement, ReactNode } from 'react';
 import type { FormClassNames } from '../widgets/class-names';
@@ -7,13 +7,19 @@ import { mergeClasses, warnIneffectiveClassNames } from '../widgets/class-names'
 import { renderControl, renderLabel } from './slots';
 import type { FormSlots } from './slots';
 import { useFormSchema } from '../useFormSchema';
+import { useResolvedMeta } from './use-resolved-meta';
 import type { FormSchema, WidgetDef } from '../core/types';
 
 export interface SchemaFieldsProps {
-  meta: FormSchema;
+  /** Sync schema, or a promise resolving to one (placeholders render until resolve). */
+  meta: FormSchema | Promise<FormSchema>;
   widgets?: Record<string, WidgetDef>;
   classNames?: FormClassNames;
   slots?: FormSlots;
+  /** Placeholder while async meta is pending; pass null to render nothing (default: antd Spin). */
+  loading?: ReactNode;
+  /** Placeholder when async meta rejects (default: nothing). */
+  error?: ReactNode;
 }
 
 /** Merge an extra className onto a React element without replacing its own classes. */
@@ -24,11 +30,15 @@ function withClassName(node: ReactNode, className: string): ReactNode {
 }
 
 /** Field renderer: delegates label/required/error to antd Form.Item. */
-const SchemaFields: FC<SchemaFieldsProps> = ({ meta, widgets, classNames, slots }) => {
+const SchemaFields: FC<SchemaFieldsProps> = ({ meta, widgets, classNames, slots, loading, error }) => {
+  const { meta: resolved, error: resolvedError, pending } = useResolvedMeta(meta);
+  // Hooks must run unconditionally (React rules of hooks); placeholders decide below.
   const form = Form.useFormInstance();
   if (!form) throw new Error('SchemaFields must be used inside a <Form>.');
+  const { visibleFields } = useFormSchema(resolved ?? { fields: [] }, form, { widgets });
+  if (pending) return loading === undefined ? <Spin /> : loading;
+  if (resolvedError) return error === undefined ? null : error;
   if (classNames?.form) warnIneffectiveClassNames(classNames.form);
-  const { visibleFields } = useFormSchema(meta, form, { widgets });
 
   return (
     <>
