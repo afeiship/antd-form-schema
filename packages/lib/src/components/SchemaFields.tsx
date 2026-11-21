@@ -34,10 +34,10 @@ const SchemaFields: FC<SchemaFieldsProps> = ({ meta, widgets, classNames, slots,
   const { meta: resolved, error: resolvedError, pending } = useResolvedMeta(meta);
   // Hooks must run unconditionally (React rules of hooks); placeholders decide below.
   const form = Form.useFormInstance();
+  if (!form) throw new Error('SchemaFields must be used inside a <Form>.');
   const { visibleFields } = useFormSchema(resolved ?? { fields: [] }, form, { widgets });
   if (pending) return loading === undefined ? <Spin /> : loading;
   if (resolvedError) return error === undefined ? null : error;
-  if (!form) throw new Error('SchemaFields must be used inside a <Form>.');
   if (classNames?.form) warnIneffectiveClassNames(classNames.form);
 
   return (
