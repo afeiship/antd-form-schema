@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import SchemaFormDemo from './components/schema-form-demo';
 import PresetsDemo from './components/presets-demo';
+import DetailEditDemo from './components/detail-edit-demo';
 
 const demos = [
   { key: 'schema-form', title: 'Schema Form', Component: SchemaFormDemo },
   { key: 'presets', title: 'Key Presets', Component: PresetsDemo },
+  { key: 'detail-edit', title: 'Detail → Edit', Component: DetailEditDemo },
 ];
 
 function App() {
