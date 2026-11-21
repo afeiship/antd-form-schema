@@ -40,6 +40,11 @@ function Harness({
   );
 }
 
+const ratio: FieldConverter = {
+  read: (value) => (value == null ? value : Number(value) * 100),
+  write: (value) => (value == null ? value : Number(value) / 100),
+};
+
 const money: FieldConverter = {
   read: (value) => (value == null ? value : Number(value) / 100),
   write: (value) => (value == null ? value : Math.round(Number(value) * 100)),
@@ -93,5 +98,44 @@ describe('field converters (render)', () => {
       fireEvent.change(input, { target: { value: '2000' } });
     });
     expect(form.getFieldValue('amount')).toBe(2000);
+  });
+
+  it('applies a meta-level converter to every field keyed in meta.converters', () => {
+    let form!: FormInstance;
+    const meta: FormSchema = {
+      initialValues: { amount: 1999 },
+      converters: { amount: 'money' },
+      fields: [{ key: 'amount', label: 'Amount', widget: 'number' }],
+    };
+    render(<Harness meta={meta} options={{ converters: { money } }} capture={(value) => (form = value.form)} />);
+
+    const input = screen.getByRole('spinbutton') as HTMLInputElement;
+    expect(input.value).toBe('19.99');
+
+    fireEvent.change(input, { target: { value: '20.5' } });
+    expect(form.getFieldValue('amount')).toBe(2050);
+  });
+
+  it('lets the field converter override meta.converters', () => {
+    const meta: FormSchema = {
+      initialValues: { amount: 0.125 },
+      converters: { amount: 'money' },
+      fields: [{ key: 'amount', label: 'Amount', widget: 'number', converter: 'ratio' }],
+    };
+    render(<SchemaForm meta={meta} converters={{ money, ratio }} />);
+    const input = screen.getByRole('spinbutton') as HTMLInputElement;
+    expect(input.value).toBe('12.5');
+  });
+
+  it('reports an unknown id coming from meta.converters', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const meta: FormSchema = {
+      converters: { amount: 'missing' },
+      fields: [{ key: 'amount' }],
+    };
+    expect(() => render(<SchemaForm meta={meta} converters={{ money }} />)).toThrow(
+      /unregistered converter/,
+    );
+    warn.mockRestore();
   });
 });
