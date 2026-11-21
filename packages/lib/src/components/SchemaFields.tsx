@@ -16,7 +16,7 @@ export interface SchemaFieldsProps {
   widgets?: Record<string, WidgetDef>;
   classNames?: FormClassNames;
   slots?: FormSlots;
-  /** Placeholder while async meta is pending (default: antd Spin). */
+  /** Placeholder while async meta is pending; pass null to render nothing (default: antd Spin). */
   loading?: ReactNode;
   /** Placeholder when async meta rejects (default: nothing). */
   error?: ReactNode;

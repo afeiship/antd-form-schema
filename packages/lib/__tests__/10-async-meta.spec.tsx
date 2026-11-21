@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { describe, expect, it, vi } from 'vitest';
-import { SchemaForm } from '../src';
+import { describe, expect, it } from 'vitest';
+import { Form } from 'antd';
+import { SchemaFields, SchemaForm } from '../src';
 
 const syncMeta = { fields: [{ key: 'name', label: 'Name', widget: 'input' }] } as any;
 
@@ -51,9 +52,6 @@ describe('SchemaForm async meta', () => {
     expect(screen.queryByText('Slow')).toBeNull();
   });
 });
-
-import { Form } from 'antd';
-import { SchemaFields } from '../src';
 
 describe('SchemaFields async meta', () => {
   it('renders placeholder inside an external Form while pending, then fields', async () => {

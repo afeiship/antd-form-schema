@@ -13,7 +13,7 @@ export interface SchemaFormProps extends Omit<FormProps, 'form' | 'initialValues
   slots?: FormSlots;
   /** Whole-values transform applied before onFinish; wins over meta.normalizeValues. */
   normalizeValues?: (values: Record<string, any>) => Record<string, any>;
-  /** Placeholder while async meta is pending (default: antd Spin). */
+  /** Placeholder while async meta is pending; pass null to render nothing (default: antd Spin). */
   loading?: ReactNode;
   /** Placeholder when async meta rejects (default: nothing). */
   error?: ReactNode;
