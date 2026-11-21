@@ -75,7 +75,7 @@ describe('useFormSchema: view mode', () => {
     ]);
   });
 
-  it('lets field-level viewMode:false override form-level viewMode:true', () => {
+  it('ignores field-level viewMode:false when the form is in view mode', () => {
     const meta: FormSchema = {
       viewMode: true,
       fields: [{ key: 'name' }, { key: 'note', viewMode: false }],
@@ -85,8 +85,19 @@ describe('useFormSchema: view mode', () => {
 
     expect(captured.result.getField('name')?.itemProps.valuePropName).toBe('initialValue');
     const note = captured.result.getField('note')!;
-    expect(note.viewMode).toBe(false);
-    expect(note.itemProps.valuePropName).not.toBe('initialValue');
+    expect(note.viewMode).toBe(true);
+    expect(note.itemProps.valuePropName).toBe('initialValue');
+  });
+
+  it('renders a single field in view mode when the form-level flag is off', () => {
+    const meta: FormSchema = {
+      fields: [{ key: 'name' }, { key: 'note', viewMode: true }],
+    };
+    let captured!: Captured;
+    render(<Harness meta={meta} capture={(value) => { captured = value; }} />);
+
+    expect(captured.result.getField('name')?.viewMode).toBe(false);
+    expect(captured.result.getField('note')?.viewMode).toBe(true);
   });
 
   it('renders a custom viewWidget escape hatch', () => {
