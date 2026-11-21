@@ -27,9 +27,11 @@ export default function SlotsDemo() {
         <SchemaForm
           meta={basicMeta}
           slots={customSlots}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2"
-          itemClassName="rounded border p-3"
-          controlClassName="w-full"
+          classNames={{
+            form: 'grid grid-cols-1 gap-4 md:grid-cols-2',
+            field: 'rounded border p-3',
+            control: 'w-full',
+          }}
           onFinish={(values) => message.success(`Submitted: ${JSON.stringify(values)}`)}
         >
           <div className="mt-6 flex justify-end">
@@ -43,10 +45,12 @@ export default function SlotsDemo() {
         <p className="mb-4 text-sm text-gray-500">同一份 meta，不传 slots 时完全走 antd Form.Item 默认渲染。</p>
         <SchemaForm
           meta={basicMeta}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2"
-          itemClassName="rounded border p-3"
-          labelClassName="text-sm font-medium text-gray-700"
-          controlClassName="w-full"
+          classNames={{
+            form: 'grid grid-cols-1 gap-4 md:grid-cols-2',
+            field: 'rounded border p-3',
+            label: 'text-sm font-medium text-gray-700',
+            control: 'w-full',
+          }}
           onFinish={(values) => message.success(`Submitted: ${JSON.stringify(values)}`)}
         >
           <div className="mt-6 flex justify-end">

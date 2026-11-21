@@ -20,7 +20,7 @@ export default function BasicGrid() {
             key={field.key}
             className={field.widget === 'textarea' ? 'md:col-span-2' : ''}
           >
-            <Form.Item {...field.itemProps} label={field.label} required={field.required}>
+            <Form.Item {...field.props} label={field.label} required={field.required}>
               {field.control}
             </Form.Item>
           </div>
