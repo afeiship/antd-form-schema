@@ -1,7 +1,7 @@
 # 查看态改用 Descriptions 设计
 
 日期：2026-11-21
-状态：待批准
+状态：已批准（用户确认，2026-11-21）
 关系：替换 `2026-11-19-antd-form-schema-implementation-design.md` 中「查看态用 Form.Item + span」的渲染方式；保留 `viewWidget`、converter `read`、presets、条件显隐和隐藏字段语义。
 
 ## 意图
