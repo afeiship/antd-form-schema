@@ -114,6 +114,33 @@ const presets = {
 - A schema `widget` override does not discard the preset's other props; they remain the defaults for that key.
 - String shorthand (`title: 'input'`) is equivalent to `{ widget: 'input' }`.
 
+## view mode
+
+`meta.viewMode: true` renders the same schema as an Ant Design `Descriptions` grid. Field values still go through `viewWidget` (default `span`), converters and option label resolution; only the presentation changes.
+
+```tsx
+const meta: FormSchema = {
+  viewMode: true,
+  view: { bordered: true, size: 'small', column: 2 },
+  initialValues: detail,
+  fields: [
+    { key: 'name' },
+    { key: 'status', viewWidget: StatusTag },
+    { key: 'bio', viewSpan: 2 },
+  ],
+};
+
+<SchemaForm meta={meta} presets={presets} />;
+```
+
+- `meta.view` accepts `title`, `extra`, `column`, `bordered`, `size`, `layout`, `colon`, `className`. Defaults are `column: 2`, `bordered: true`, `size: 'small'`.
+- `field.viewSpan` maps to `Descriptions.Item span`; Ant Design still applies its own row/column rules.
+- `field.viewWidget` is a component or a registered widget id; it receives `initialValue` and `options`.
+- `field.viewProps` are view-only widget props and win over `widgetProps`; `initialValue` is applied last and cannot be overridden.
+- `meta.viewMode: true` is all-or-nothing: a field-level `viewMode: false` is ignored. When `meta.viewMode` is off, `field.viewMode: true` keeps the older single-field read-only `Form.Item` behavior.
+- Hidden fields stay mounted as hidden `Form.Item`s; visible fields get value-only carriers, so `onFinish` still receives the full value set.
+- `slots.label` and `slots.control` work in view mode; `slots.field` has no `Form.Item` to wrap and is ignored.
+
 ## project defaults
 
 Configure `presets`, `converters` and `locale` once at the project entry. Every `SchemaForm`, `SchemaFields` and `useFormSchema` call picks them up; per-form props only override.
