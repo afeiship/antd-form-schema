@@ -75,7 +75,8 @@ export function useFormSchema(
       : undefined;
     const renderField = viewDef ? applyConverter(converted, viewDef, meta) : converted;
     const WidgetComponent = viewDef ? viewDef.component : def.component;
-    const converter = resolveConverter(converted.converter, converters);
+    const converterId = converted.converter ?? activeMeta.converters?.[converted.key];
+    const converter = resolveConverter(converterId, converters);
     const converterCtx = converter
       ? { field: converted, values, meta: activeMeta }
       : undefined;
@@ -108,7 +109,7 @@ export function useFormSchema(
       className: field.className,
       valueType: field.valueType,
       valueFormat: field.valueFormat,
-      converter: field.converter,
+      converter: converterId,
       placeholder: field.placeholder,
       options: converted.options,
       required: field.required,

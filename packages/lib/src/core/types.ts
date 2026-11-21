@@ -92,6 +92,8 @@ export interface FormSchema {
   /** Whole-values transform applied before onFinish in SchemaForm. */
   normalizeValues?: (values: Record<string, any>) => Record<string, any>;
   initialValues?: Record<string, any>;
+  /** Form-level converter defaults keyed by field key. A field's own `converter` wins. */
+  converters?: Record<string, string>;
   fields: FieldSchema[];
 }
 

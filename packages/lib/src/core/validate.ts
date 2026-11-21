@@ -74,20 +74,21 @@ export function validateMeta(
       });
     }
 
-    if (field.converter !== undefined) {
+    const converterId = field.converter ?? meta.converters?.[field.key];
+    if (converterId !== undefined) {
       const registered =
-        converters && Object.prototype.hasOwnProperty.call(converters, field.converter);
+        converters && Object.prototype.hasOwnProperty.call(converters, converterId);
       if (!registered) {
         issues.push({
           level: 'error',
-          message: `unregistered converter "${field.converter}"`,
+          message: `unregistered converter "${converterId}"`,
           field: field.key,
         });
       }
       if (field.valueType !== undefined) {
         issues.push({
           level: 'error',
-          message: `converter "${field.converter}" cannot be combined with valueType on field "${field.key}"`,
+          message: `converter "${converterId}" cannot be combined with valueType on field "${field.key}"`,
           field: field.key,
         });
       }
