@@ -47,9 +47,9 @@
 - `useFormSchema`：`const isView = meta.viewMode === true ? true : (field.viewMode ?? false);`
 - 查看态控件 props 合并顺序：`widgetProps` → `viewProps` → `initialValue`。
 
-- [ ] **Step 1: 写类型** — 在 `types.ts` 增加 `ViewConfig` 和字段属性。
-- [ ] **Step 2: 改 hook** — 强制查看态、合并 `viewProps`、带出 `viewSpan` / `viewProps`。
-- [ ] **Step 3: 写渲染测试** — 新建 `17-descriptions-view.spec.tsx`，覆盖 Descriptions 出现、字段级 false 被忽略、converter read。
+- [x] **Step 1: 写类型** — 在 `types.ts` 增加 `ViewConfig` 和字段属性。
+- [x] **Step 2: 改 hook** — 强制查看态、合并 `viewProps`、带出 `viewSpan` / `viewProps`。
+- [x] **Step 3: 写渲染测试** — 新建 `17-descriptions-view.spec.tsx`，覆盖 Descriptions 出现、字段级 false 被忽略、converter read。
 
 ---
 
@@ -64,10 +64,11 @@
 - `SchemaView` 接收 `fields`、`view`、`slots`、`classNames`。
 - `SchemaFields` 在 `resolved.viewMode === true` 时返回 `SchemaView`，否则走原有 `Form.Item` 渲染。
 
-- [ ] **Step 1: 写失败测试** — 渲染 `SchemaForm viewMode`，断言 `.ant-descriptions`、label、值、无可见 Form.Item。
-- [ ] **Step 2: 实现 SchemaView** — 默认配置 + `viewSpan` + hidden Form.Item；复用 `renderSlot` / `renderLabel` / `renderControl`。
-- [ ] **Step 3: 接 SchemaFields** — 增加 view 分支，`SchemaForm` 不需要改。
-- [ ] **Step 4: 跑测试** — 新测试通过。
+- [x] **Step 1: 写失败测试** — 渲染 `SchemaForm viewMode`，断言 `.ant-descriptions`、label、值、无可见 Form.Item。
+- [x] **Step 2: 实现 SchemaView** — 默认配置 + `viewSpan` + hidden Form.Item；复用 `renderSlot` / `renderLabel` / `renderControl`。
+  - 实现中发现：可见字段没有 `Form.Item` 后，`onFinish` 只包含 hidden 字段；补充可见字段的 `noStyle` 值载体。
+- [x] **Step 3: 接 SchemaFields** — 增加 view 分支，`SchemaForm` 不需要改。
+- [x] **Step 4: 跑测试** — 新测试通过。
 
 ---
 
@@ -78,10 +79,10 @@
 - Modify: `packages/lib/src/useFormSchema.ts`
 - Test: `packages/lib/__tests__/17-descriptions-view.spec.tsx`
 
-- [ ] **Step 1: 校验 viewWidget** — 字符串 id 未注册时报 `unregistered viewWidget`，dev 下 fatal。
-- [ ] **Step 2: 校验 viewSpan** — 非正整数给 warning。
-- [ ] **Step 3: 覆盖边界** — hidden 值仍可提交、condition 隐藏不出现、option label、custom viewWidget + viewProps。
-- [ ] **Step 4: 全量测试** — `cd packages/lib && ./node_modules/.bin/vitest run` 全绿。
+- [x] **Step 1: 校验 viewWidget** — 字符串 id 未注册时报 `unregistered viewWidget`，dev 下 fatal。
+- [x] **Step 2: 校验 viewSpan** — 非正整数给 warning。
+- [x] **Step 3: 覆盖边界** — hidden 值仍可提交、condition 隐藏不出现、option label、custom viewWidget + viewProps。
+- [x] **Step 4: 全量测试** — `cd packages/lib && ./node_modules/.bin/vitest run` 全绿（18 个文件、187 项）。
 
 ---
 
@@ -92,10 +93,10 @@
 - Modify: `packages/example/src/components/detail-edit-demo.tsx`
 - Modify: `README.md`
 
-- [ ] **Step 1: view-edit** — 改成 `SchemaForm` + Descriptions；补充 `viewSpan`。
-- [ ] **Step 2: detail-edit-demo** — 删除手写 `Descriptions`，查看态交给 schema；状态用自定义 `viewWidget`。
-- [ ] **Step 3: README** — 增加查看态配置、`viewSpan`、`viewProps`、字段级覆盖说明。
-- [ ] **Step 4: 构建验收** — lib tsup、example tsc/build 通过。
+- [x] **Step 1: view-edit** — 改成 `SchemaForm` + Descriptions；补充 `viewSpan`。
+- [x] **Step 2: detail-edit-demo** — 删除手写 `Descriptions`，查看态交给 schema；状态用自定义 `viewWidget`。
+- [x] **Step 3: README** — 增加查看态配置、`viewSpan`、`viewProps`、字段级覆盖说明。
+- [x] **Step 4: 构建验收** — lib tsup、example tsc/build 通过。
 
 ## 规模
 

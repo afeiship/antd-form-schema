@@ -1,7 +1,7 @@
 # 查看态改用 Descriptions 设计
 
 日期：2026-11-21
-状态：已批准（用户确认，2026-11-21）
+状态：已实现（2026-11-21）
 关系：替换 `2026-11-19-antd-form-schema-implementation-design.md` 中「查看态用 Form.Item + span」的渲染方式；保留 `viewWidget`、converter `read`、presets、条件显隐和隐藏字段语义。
 
 ## 意图
@@ -161,6 +161,8 @@ widgetProps
   ))}
 </Descriptions>
 ```
+
+可见字段没有 `Form.Item` 后，`onFinish` 只会收集已注册字段；因此 `SchemaView` 为每个可见字段额外挂一个 `Form.Item noStyle` 值载体，并清空 `rules`。载体只负责把值注册进 Form，不渲染 UI，也不触发查看态校验。
 
 隐藏字段不进入 `Descriptions`，但仍挂载为 `Form.Item hidden`，保证提交时值还在：
 
