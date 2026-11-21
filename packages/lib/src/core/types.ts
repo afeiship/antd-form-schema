@@ -147,6 +147,16 @@ export interface PresetsInput {
 /** Presets prop: a sectioned file, or a flat single-language label table. */
 export type Presets = PresetsInput | Record<string, string>;
 
+/** Project-level defaults shared by SchemaForm, SchemaFields and useFormSchema. */
+export interface SchemaFormDefaults {
+  /** Default presets; merged per key with form-level presets, form-level wins. */
+  presets?: Presets;
+  /** Default converter registry; merged per id with form-level registry, form-level wins. */
+  converters?: Record<string, FieldConverter>;
+  /** Default locale; form-level locale wins, final fallback is zh-CN. */
+  locale?: string;
+}
+
 export interface UseFormSchemaOptions {
   /** Local widget registrations / overrides, taking precedence over builtin widgets. */
   widgets?: Record<string, WidgetDef>;
