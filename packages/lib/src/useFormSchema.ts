@@ -2,6 +2,7 @@ import { Form } from 'antd';
 import { createElement, useMemo } from 'react';
 import { getItemProps, getControlProps } from './core/bind';
 import { evaluateCondition } from './core/condition';
+import { applyFieldConverter, readConvertedValue, resolveConverter } from './core/converters';
 import { normalizeMeta } from './core/normalize';
 import { applyPresets } from './core/presets';
 import { get } from './core/utils';
@@ -29,6 +30,7 @@ export function useFormSchema(
   const widgets = options?.widgets;
   const presets = options?.presets;
   const locale = options?.locale;
+  const converters = options?.converters;
 
   // Presets merge before validation so a bad preset widget id is caught by validateMeta.
   const activeMeta = useMemo(
@@ -40,17 +42,21 @@ export function useFormSchema(
     const found: Issue[] = [];
     if (validate !== false && isDev) {
       const mergedWidgets = { ...WIDGETS, ...widgets };
-      found.push(...validateMeta(activeMeta, mergedWidgets));
+      found.push(...validateMeta(activeMeta, mergedWidgets, converters));
       for (const issue of found) {
         console.warn(issue.message);
       }
-      const unregistered = found.find((issue) => issue.message.startsWith('unregistered widget '));
-      if (unregistered) {
-        throw new Error(unregistered.message);
+      const fatal = found.find(
+        (issue) =>
+          issue.message.startsWith('unregistered widget ') ||
+          issue.message.startsWith('unregistered converter '),
+      );
+      if (fatal) {
+        throw new Error(fatal.message);
       }
     }
     return found;
-  }, [activeMeta, validate, widgets]);
+  }, [activeMeta, validate, widgets, converters]);
 
   const normalized = normalizeMeta(activeMeta);
   // Watch-all is intentional: useWatch returns only a rerender trigger, values are read fresh below.
@@ -69,14 +75,23 @@ export function useFormSchema(
       : undefined;
     const renderField = viewDef ? applyConverter(converted, viewDef, meta) : converted;
     const WidgetComponent = viewDef ? viewDef.component : def.component;
+    const converter = resolveConverter(converted.converter, converters);
+    const converterCtx = converter
+      ? { field: converted, values, meta: activeMeta }
+      : undefined;
 
-    const props = getItemProps(converted, {
+    let props = getItemProps(converted, {
       valuePropName: isView ? 'initialValue' : converted.valuePropName,
     });
+    if (converter && converterCtx) {
+      props = applyFieldConverter(props, converter, converterCtx, isView);
+    }
     if (converted.itemProps) Object.assign(props, converted.itemProps);
     const controlProps = getControlProps(converted);
+    const storedValue = get(values, converted.name);
+    const viewValue = readConvertedValue(storedValue, converter, converted, values, activeMeta);
     const renderProps = viewDef
-      ? { ...getControlProps(renderField), initialValue: get(values, converted.name) }
+      ? { ...getControlProps(renderField), initialValue: viewValue }
       : controlProps;
     // `options` would leak onto a native input's DOM; drop it in edit mode.
     // View widgets (e.g. ViewSpan) need options to resolve enum labels, so keep it there.
@@ -93,6 +108,7 @@ export function useFormSchema(
       className: field.className,
       valueType: field.valueType,
       valueFormat: field.valueFormat,
+      converter: field.converter,
       placeholder: field.placeholder,
       options: converted.options,
       required: field.required,

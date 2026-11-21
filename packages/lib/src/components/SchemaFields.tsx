@@ -8,7 +8,7 @@ import { renderControl, renderLabel } from './slots';
 import type { FormSlots } from './slots';
 import { useFormSchema } from '../useFormSchema';
 import { useResolvedMeta } from './use-resolved-meta';
-import type { FormSchema, Presets, WidgetDef } from '../core/types';
+import type { FieldConverter, FormSchema, Presets, WidgetDef } from '../core/types';
 
 export interface SchemaFieldsProps {
   /** Sync schema, or a promise resolving to one (placeholders render until resolve). */
@@ -20,6 +20,8 @@ export interface SchemaFieldsProps {
   presets?: Presets;
   /** Locale used to pick preset labels; defaults to 'zh-CN'. */
   locale?: string;
+  /** Per-field converters, keyed by the id referenced from `FieldSchema.converter`. */
+  converters?: Record<string, FieldConverter>;
   /** Placeholder while async meta is pending; pass null to render nothing (default: antd Spin). */
   loading?: ReactNode;
   /** Placeholder when async meta rejects (default: nothing). */
@@ -41,6 +43,7 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
   slots,
   presets,
   locale,
+  converters,
   loading,
   error,
 }) => {
@@ -52,6 +55,7 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
     widgets,
     presets,
     locale,
+    converters,
   });
   if (pending) return loading === undefined ? <Spin /> : loading;
   if (resolvedError) return error === undefined ? null : error;

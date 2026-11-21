@@ -1,7 +1,14 @@
 import { getConditionPaths } from '../core/condition';
 import { resolveName, toNamePath } from '../core/utils';
 import { BUILTIN_WIDGET_IDS } from '../widgets/widget-ids';
-import type { FieldSchema, FormSchema, Issue, NamePath, WidgetDef } from './types';
+import type {
+  FieldSchema,
+  FieldConverter,
+  FormSchema,
+  Issue,
+  NamePath,
+  WidgetDef,
+} from './types';
 
 /** Turn a normalized path back into a readable name for issue messages. */
 function pathToName(path: NamePath): string {
@@ -14,7 +21,11 @@ function pathToName(path: NamePath): string {
 const VALUE_TYPES = ['dayjs', 'string', 'number', 'timestamp'];
 
 /** Validate a schema and return issues. Dev/prod behavior is decided by the hook. */
-export function validateMeta(meta: FormSchema, widgets?: Record<string, WidgetDef>): Issue[] {
+export function validateMeta(
+  meta: FormSchema,
+  widgets?: Record<string, WidgetDef>,
+  converters?: Record<string, FieldConverter>,
+): Issue[] {
   if (!Array.isArray(meta.fields)) {
     return [{ level: 'error', message: 'fields must be an array' }];
   }
@@ -61,6 +72,25 @@ export function validateMeta(meta: FormSchema, widgets?: Record<string, WidgetDe
         message: `unknown valueType "${field.valueType}"`,
         field: field.key,
       });
+    }
+
+    if (field.converter !== undefined) {
+      const registered =
+        converters && Object.prototype.hasOwnProperty.call(converters, field.converter);
+      if (!registered) {
+        issues.push({
+          level: 'error',
+          message: `unregistered converter "${field.converter}"`,
+          field: field.key,
+        });
+      }
+      if (field.valueType !== undefined) {
+        issues.push({
+          level: 'error',
+          message: `converter "${field.converter}" cannot be combined with valueType on field "${field.key}"`,
+          field: field.key,
+        });
+      }
     }
 
     if (

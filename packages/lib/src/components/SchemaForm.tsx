@@ -32,6 +32,7 @@ const SchemaForm: FC<SchemaFormProps> = ({
   slots,
   presets,
   locale,
+  converters,
   onFormReady,
   normalizeValues,
   loading,
@@ -76,6 +77,7 @@ const SchemaForm: FC<SchemaFormProps> = ({
         slots={slots}
         presets={presets}
         locale={locale}
+        converters={converters}
       />
       {children}
     </Form>

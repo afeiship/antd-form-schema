@@ -61,6 +61,26 @@ export interface FieldSchema {
   valueType?: 'dayjs' | 'string' | 'number' | 'timestamp';
   /** Format override, only meaningful with valueType 'string'. Default 'YYYY-MM-DD'. */
   valueFormat?: string;
+  /** Converter id resolved from the `converters` registry; mutually exclusive with valueType. */
+  converter?: string;
+}
+
+/** Context passed to a field converter. `values` is a read-only snapshot of the whole form. */
+export interface ConverterContext {
+  /** Current field, already normalized. */
+  field: NormalizedField;
+  /** Whole-form values snapshot; read only, never mutate. */
+  values: Record<string, any>;
+  /** Current schema; read only. */
+  meta: FormSchema;
+}
+
+/** Per-field value adapter: stored value <-> control value. Both hooks must be pure. */
+export interface FieldConverter {
+  /** Stored value -> control value (display); passthrough when omitted. */
+  read?: (value: any, ctx: ConverterContext) => any;
+  /** Control value -> stored value (write-back); passthrough when omitted. */
+  write?: (value: any, ctx: ConverterContext) => any;
 }
 
 /** Form contract: no layout or style keys. */
@@ -132,6 +152,8 @@ export interface UseFormSchemaOptions {
   presets?: Presets;
   /** Locale used to pick preset labels; defaults to 'zh-CN'. */
   locale?: string;
+  /** Per-field converters, keyed by the id referenced from `FieldSchema.converter`. */
+  converters?: Record<string, FieldConverter>;
 }
 
 export interface BoundField {
@@ -143,6 +165,8 @@ export interface BoundField {
   className?: string;
   valueType?: 'dayjs' | 'string' | 'number' | 'timestamp';
   valueFormat?: string;
+  /** Converter id used by this field, exposed for debugging. */
+  converter?: string;
   placeholder?: string;
   options?: NormalizedOption[];
   required?: boolean;
