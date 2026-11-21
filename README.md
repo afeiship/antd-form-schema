@@ -92,7 +92,8 @@ const money: FieldConverter = {
 
 const meta: FormSchema = {
   initialValues: { price: 1999 },
-  fields: [{ key: 'price', label: 'Price', widget: 'number', converter: 'money' }],
+  converters: { price: 'money' },
+  fields: [{ key: 'price', label: 'Price', widget: 'number' }],
 };
 
 <SchemaForm meta={meta} converters={{ money }} />;
@@ -101,6 +102,7 @@ const meta: FormSchema = {
 - `read(value, ctx)` maps the stored value to the control value; it only runs for display and view mode.
 - `write(value, ctx)` maps the control value back to the stored value.
 - `ctx` is `{ field, values, meta }`. Read the whole form through `values`, but never write other fields from a converter.
+- Form-wide defaults live on the schema: `meta.converters` maps a field key to a converter id, and a field's own `converter` wins over it.
 - A converter cannot be combined with `valueType`; omit it for zero behavior change.
 - An unregistered converter id is a fatal error. Throwing inside a converter falls back to the raw value and warns in dev.
 - Fields without a converter are untouched; `getValueProps` / `getValueFromEvent` set directly on the field still win.
