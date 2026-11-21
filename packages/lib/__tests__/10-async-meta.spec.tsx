@@ -51,3 +51,31 @@ describe('SchemaForm async meta', () => {
     expect(screen.queryByText('Slow')).toBeNull();
   });
 });
+
+import { Form } from 'antd';
+import { SchemaFields } from '../src';
+
+describe('SchemaFields async meta', () => {
+  it('renders placeholder inside an external Form while pending, then fields', async () => {
+    let resolveMeta: (m: any) => void = () => {};
+    const promise = new Promise((r) => (resolveMeta = r));
+    const { container } = render(
+      <Form>
+        <SchemaFields meta={promise} />
+      </Form>,
+    );
+    expect(container.querySelector('.ant-spin')).toBeInTheDocument();
+    resolveMeta(syncMeta);
+    await waitFor(() => expect(document.querySelector('.ant-input')).toBeInTheDocument());
+  });
+
+  it('custom loading node replaces the default Spin', () => {
+    const never = new Promise<{ fields: any[] }>(() => {});
+    render(
+      <Form>
+        <SchemaFields meta={never} loading={<div>fetching…</div>} />
+      </Form>,
+    );
+    expect(screen.getByText('fetching…')).toBeInTheDocument();
+  });
+});
