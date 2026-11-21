@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
-import { Button, Checkbox, Form, message } from 'antd';
-import { useFormSchema } from '@jswork/antd-form-schema';
+import { useState } from 'react';
+import { Button, Checkbox, message } from 'antd';
+import { SchemaForm } from '@jswork/antd-form-schema';
 import type { FormSchema } from '@jswork/antd-form-schema';
 
 const meta: FormSchema = {
+  view: { bordered: true, size: 'small', column: 2 },
+  initialValues: { name: 'Alice', role: 'admin', bio: 'Hello world' },
   fields: [
     { key: 'name', label: '姓名', widget: 'input' },
     {
@@ -15,16 +17,13 @@ const meta: FormSchema = {
         { value: 'user', label: '普通用户' },
       ],
     },
-    { key: 'bio', label: '个人简介', widget: 'textarea' },
+    { key: 'bio', label: '个人简介', widget: 'textarea', viewSpan: 2 },
   ],
 };
 
-/** PRD §8: one schema, two presentations; enum values display their option labels in view mode. */
+/** PRD §8: one schema, two presentations; view mode renders a Descriptions grid. */
 export default function ViewEdit() {
-  const [form] = Form.useForm();
   const [viewMode, setViewMode] = useState(false);
-  const viewMeta = useMemo(() => ({ ...meta, viewMode }), [viewMode]);
-  const { visibleFields } = useFormSchema(viewMeta, form);
 
   return (
     <div>
@@ -33,24 +32,13 @@ export default function ViewEdit() {
           View mode
         </Checkbox>
         <span className="text-sm text-gray-500">
-          {viewMode ? 'Read-only text (enum shows label)' : 'Editable controls'}
+          {viewMode ? 'Descriptions grid (enum shows label)' : 'Editable controls'}
         </span>
       </div>
-      <Form
-        form={form}
-        initialValues={{ name: 'Alice', role: 'admin', bio: 'Hello world' }}
-        layout="vertical"
-        onFinish={(values) => message.success(`Saved: ${JSON.stringify(values)}`)}
-      >
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {visibleFields.map((field) => (
-            <div key={field.key} className={field.widget === 'textarea' ? 'md:col-span-2' : ''}>
-              <Form.Item {...field.itemProps} label={field.label} required={field.required}>
-                {viewMode ? (field.viewContent ?? field.control) : field.control}
-              </Form.Item>
-            </div>
-          ))}
-        </div>
+      <SchemaForm
+        key={viewMode ? 'view' : 'edit'}
+        meta={{ ...meta, viewMode }}
+        onFinish={(values) => message.success(`Saved: ${JSON.stringify(values)}`)}>
         {!viewMode && (
           <div className="mt-6 flex justify-end">
             <Button type="primary" htmlType="submit">
@@ -58,7 +46,7 @@ export default function ViewEdit() {
             </Button>
           </div>
         )}
-      </Form>
+      </SchemaForm>
     </div>
   );
 }

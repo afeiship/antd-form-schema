@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Descriptions, Skeleton, Tag, message } from 'antd';
+import { Button, Skeleton, Tag, message } from 'antd';
 import { SchemaForm } from '@jswork/antd-form-schema';
 import type { FormSchema } from '@jswork/antd-form-schema';
 import { presets } from '../presets';
@@ -36,12 +36,20 @@ function fetchUserDetail(id: string): Promise<UserDetail> {
   });
 }
 
+/** Custom view widget: status renders as a Tag instead of plain text. */
+function StatusTag({ initialValue, options }: any) {
+  const label =
+    options?.find((option: any) => option.value === initialValue)?.label ?? initialValue;
+  return <Tag color={initialValue === 'active' ? 'green' : 'default'}>{label}</Tag>;
+}
+
 /**
  * One schema for both states: fields are pure keys, labels and widgets come from presets.
- * Only `initialValues` differs between view and edit — the detail response feeds it.
+ * Only `initialValues` and `viewMode` differ — the detail response feeds the same schema.
  */
 const detailMeta: FormSchema = {
   name: 'user-detail-edit',
+  view: { bordered: true, size: 'small', column: 2 },
   fields: [
     { key: 'name', required: true },
     { key: 'nickname' },
@@ -60,13 +68,13 @@ const detailMeta: FormSchema = {
         ['active', '活跃'],
         ['disabled', '禁用'],
       ],
+      viewWidget: StatusTag,
     },
     { key: 'birthday', valueType: 'string' },
-    { key: 'bio' },
+    { key: 'id' },
+    { key: 'bio', viewSpan: 2 },
   ],
 };
-
-const roleText: Record<UserDetail['role'], string> = { admin: '管理员', user: '普通用户' };
 
 export default function DetailEditDemo() {
   const [detail, setDetail] = useState<UserDetail | null>(null);
@@ -120,26 +128,30 @@ export default function DetailEditDemo() {
         )}
       </div>
 
-      {editing ? (
-        <SchemaForm
-          key="edit"
-          meta={{ ...detailMeta, initialValues: detail }}
-          presets={presets}
-          locale="zh-CN"
-          classNames={{
-            form: 'grid grid-cols-1 gap-4 md:grid-cols-2',
-            field: 'rounded border p-3 !mb-0 hover:bg-gray-50',
-            label: 'mb-1 block text-sm font-medium text-gray-700',
-            control: 'w-full',
-          }}
-          onFinish={async (values) => {
-            setSaving(true);
-            await new Promise((resolve) => setTimeout(resolve, 600));
-            setDetail({ ...detail, ...(values as Partial<UserDetail>) });
-            setSaving(false);
-            setEditing(false);
-            message.success('已保存（示例未真正写库）');
-          }}>
+      <SchemaForm
+        key={editing ? 'edit' : 'view'}
+        meta={{ ...detailMeta, initialValues: detail, viewMode: !editing }}
+        presets={presets}
+        locale="zh-CN"
+        classNames={
+          editing
+            ? {
+                form: 'grid grid-cols-1 gap-4 md:grid-cols-2',
+                field: 'rounded border p-3 !mb-0 hover:bg-gray-50',
+                label: 'mb-1 block text-sm font-medium text-gray-700',
+                control: 'w-full',
+              }
+            : undefined
+        }
+        onFinish={async (values) => {
+          setSaving(true);
+          await new Promise((resolve) => setTimeout(resolve, 600));
+          setDetail({ ...detail, ...(values as Partial<UserDetail>) });
+          setSaving(false);
+          setEditing(false);
+          message.success('已保存（示例未真正写库）');
+        }}>
+        {editing && (
           <div className="col-span-full mt-2 flex justify-end gap-2">
             <Button onClick={() => setEditing(false)} disabled={saving}>
               取消
@@ -148,29 +160,11 @@ export default function DetailEditDemo() {
               保存
             </Button>
           </div>
-        </SchemaForm>
-      ) : (
-        <Descriptions bordered size="small" column={2}>
-          <Descriptions.Item label="姓名">{detail.name}</Descriptions.Item>
-          <Descriptions.Item label="昵称">{detail.nickname}</Descriptions.Item>
-          <Descriptions.Item label="邮箱">{detail.email}</Descriptions.Item>
-          <Descriptions.Item label="手机号">{detail.phone}</Descriptions.Item>
-          <Descriptions.Item label="角色">{roleText[detail.role]}</Descriptions.Item>
-          <Descriptions.Item label="状态">
-            <Tag color={detail.status === 'active' ? 'green' : 'default'}>
-              {detail.status === 'active' ? '活跃' : '禁用'}
-            </Tag>
-          </Descriptions.Item>
-          <Descriptions.Item label="生日">{detail.birthday}</Descriptions.Item>
-          <Descriptions.Item label="用户 ID">{detail.id}</Descriptions.Item>
-          <Descriptions.Item label="个人简介" span={2}>
-            {detail.bio}
-          </Descriptions.Item>
-        </Descriptions>
-      )}
+        )}
+      </SchemaForm>
 
       <p className="text-xs text-gray-400">
-        同一份 schema 同时服务于查看与编辑：查看用 Descriptions，编辑用 SchemaForm，字段定义不重复。
+        同一份 schema 同时服务于查看与编辑：查看态自动用 Descriptions，编辑态用表单控件，字段定义不重复。
       </p>
     </div>
   );
