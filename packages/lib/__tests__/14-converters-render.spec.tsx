@@ -50,6 +50,11 @@ const money: FieldConverter = {
   write: (value) => (value == null ? value : Math.round(Number(value) * 100)),
 };
 
+const fixed2: FieldConverter = {
+  read: (value) => (value == null ? value : Number(value).toFixed(2)),
+  write: (value) => (value == null || value === '' ? value : Number(value)),
+};
+
 describe('field converters (render)', () => {
   it('shows the stored cents as yuan and writes yuan back as cents', () => {
     let form!: FormInstance;
@@ -136,6 +141,88 @@ describe('field converters (render)', () => {
     expect(() => render(<SchemaForm meta={meta} converters={{ money }} />)).toThrow(
       /unregistered converter/,
     );
+    warn.mockRestore();
+  });
+
+  it('runs a field converter chain forward on read and backward on write', () => {
+    let form!: FormInstance;
+    const meta: FormSchema = {
+      initialValues: { amount: 1999 },
+      fields: [
+        {
+          key: 'amount',
+          label: 'Amount',
+          widget: 'number',
+          converter: ['money', 'fixed2'],
+        },
+      ],
+    };
+    render(
+      <Harness
+        meta={meta}
+        options={{ converters: { money, fixed2 } }}
+        capture={(value) => (form = value.form)}
+      />,
+    );
+
+    const input = screen.getByRole('spinbutton') as HTMLInputElement;
+    expect(input.value).toBe('19.99');
+
+    fireEvent.change(input, { target: { value: '20.50' } });
+    expect(form.getFieldValue('amount')).toBe(2050);
+  });
+
+  it('supports a chain in meta.converters', () => {
+    const meta: FormSchema = {
+      initialValues: { amount: 1999 },
+      converters: { amount: ['money', 'fixed2'] },
+      fields: [{ key: 'amount', label: 'Amount', widget: 'number' }],
+    };
+    render(<SchemaForm meta={meta} converters={{ money, fixed2 }} />);
+    expect((screen.getByRole('spinbutton') as HTMLInputElement).value).toBe('19.99');
+  });
+
+  it('lets a field chain override a meta-level chain', () => {
+    const meta: FormSchema = {
+      initialValues: { amount: 0.125 },
+      converters: { amount: ['money', 'fixed2'] },
+      fields: [{ key: 'amount', label: 'Amount', widget: 'number', converter: 'ratio' }],
+    };
+    render(<SchemaForm meta={meta} converters={{ money, fixed2, ratio }} />);
+    expect((screen.getByRole('spinbutton') as HTMLInputElement).value).toBe('12.5');
+  });
+
+  it('treats an empty chain as no conversion', () => {
+    const meta: FormSchema = {
+      initialValues: { amount: 1999 },
+      converters: { amount: [] },
+      fields: [{ key: 'amount', label: 'Amount', widget: 'number' }],
+    };
+    render(<SchemaForm meta={meta} converters={{ money }} />);
+    expect((screen.getByRole('spinbutton') as HTMLInputElement).value).toBe('1999');
+  });
+
+  it('reports an unknown id inside a chain', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const meta: FormSchema = {
+      fields: [{ key: 'amount', converter: ['money', 'missing'] }],
+    };
+    expect(() => render(<SchemaForm meta={meta} converters={{ money }} />)).toThrow(
+      /unregistered converter/,
+    );
+    warn.mockRestore();
+  });
+
+  it('warns but renders when a chain member has no write', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const readOnly: FieldConverter = { read: (value) => value };
+    const meta: FormSchema = {
+      initialValues: { amount: 1999 },
+      fields: [{ key: 'amount', label: 'Amount', widget: 'number', converter: ['money', 'readOnly'] }],
+    };
+    render(<SchemaForm meta={meta} converters={{ money, readOnly }} />);
+    expect(screen.getByText('Amount')).toBeInTheDocument();
+    expect(warn.mock.calls.some(([message]) => String(message).includes('has no write'))).toBe(true);
     warn.mockRestore();
   });
 });
