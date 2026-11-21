@@ -6,7 +6,12 @@ import type { Presets } from '@jswork/antd-form-schema';
  */
 export const presets: Presets = {
   fields: {
-    title: 'input',
+    title: {
+      widget: 'input',
+      placeholder: '请输入标题',
+      allowClear: true,
+      maxLength: 60,
+    },
     name: 'input',
     nickname: 'input',
     email: 'input',
@@ -14,7 +19,11 @@ export const presets: Presets = {
     avatar: 'input',
     status: 'select',
     role: 'select',
-    bio: 'textarea',
+    bio: {
+      widget: 'textarea',
+      placeholder: '请输入个人简介',
+      autoSize: { minRows: 2, maxRows: 6 },
+    },
     birthday: 'date-picker',
     createdAt: 'date-time',
     enabled: 'switch',
