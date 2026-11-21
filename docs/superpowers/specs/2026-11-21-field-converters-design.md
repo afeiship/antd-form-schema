@@ -52,19 +52,19 @@ import type { FieldConverter } from '@jswork/antd-form-schema';
 export const converters: Record<string, FieldConverter> = {
   // 存储：分（整数）；控件：元
   money: {
-    toControl: (value) => (value == null ? value : Number(value) / 100),
-    toStore: (value) => (value == null ? value : Math.round(Number(value) * 100)),
+    read: (value) => (value == null ? value : Number(value) / 100),
+    write: (value) => (value == null ? value : Math.round(Number(value) * 100)),
   },
 
   // 存储：小数；控件：百分数
   percent: {
-    toControl: (value) => (value == null ? value : Number(value) * 100),
-    toStore: (value) => (value == null ? value : Number(value) / 100),
+    read: (value) => (value == null ? value : Number(value) * 100),
+    write: (value) => (value == null ? value : Number(value) / 100),
   },
 
   // 存储：JSON 字符串；控件：对象
   json: {
-    toControl: (value) => {
+    read: (value) => {
       if (value == null || value === '') return value;
       try {
         return typeof value === 'string' ? JSON.parse(value) : value;
@@ -72,7 +72,7 @@ export const converters: Record<string, FieldConverter> = {
         return value; // 坏数据原样交给控件，避免表单白屏
       }
     },
-    toStore: (value) => (value == null ? value : JSON.stringify(value)),
+    write: (value) => (value == null ? value : JSON.stringify(value)),
   },
 };
 ```
@@ -116,19 +116,21 @@ export interface ConverterContext {
 
 export interface FieldConverter {
   /** 存储值 → 控件值（回显）；缺省原样透传 */
-  toControl?: (value: any, ctx: ConverterContext) => any;
+  read?: (value: any, ctx: ConverterContext) => any;
   /** 控件值 → 存储值（写回）；缺省原样透传 */
-  toStore?: (value: any, ctx: ConverterContext) => any;
+  write?: (value: any, ctx: ConverterContext) => any;
 }
 ```
+
+命名说明：`read` 是从存储读出、给控件用；`write` 是控件写回存储。比 `toControl` / `toStore` 短，且方向固定——不要理解成「读文件」。
 
 读取其他字段是允许的：
 
 ```ts
 currencyAmount: {
-  toControl: (value, ctx) =>
+  read: (value, ctx) =>
     value == null ? value : ctx.values.currency === 'USD' ? value / 100 : value,
-  toStore: (value, ctx) =>
+  write: (value, ctx) =>
     value == null ? value : ctx.values.currency === 'USD' ? Math.round(value * 100) : value,
 },
 ```
@@ -144,7 +146,7 @@ currencyAmount: {
 
 | 方案 | 形状 | 结论 |
 | --- | --- | --- |
-| A. 字段内联函数 | `{ key, converter: { toControl, toStore } }` | 否决：schema 不可序列化，YAML / 后端存 meta 直接失效，同一转换要重复写 |
+| A. 字段内联函数 | `{ key, converter: { read, write } }` | 否决：schema 不可序列化，YAML / 后端存 meta 直接失效，同一转换要重复写 |
 | B. 独立注册表 + 字段引用 id | `converters: {...}`，字段 `converter: 'money'` | 采纳：可复用、可测试、schema 保持纯数据 |
 | C. 不做，继续手写 `itemProps` | 调用方自己写 `getValueProps` | 否决：要求懂 antd 内部约定，逻辑散落，无法统一校验 |
 | D. 并进 `valueType` | 增加 `'money' \| 'json' \| ...` | 否决：类型无限膨胀，且无法覆盖自定义业务转换 |
@@ -153,7 +155,7 @@ currencyAmount: {
 
 - 字段通过 `converter: '<id>'` 完成存储值与控件值的双向转换。
 - converter 可读整表 `values` 做上下文判断，结果只影响本字段。
-- 视图态（`viewMode`）展示的值同样经过 `toControl`，不显示存储原值。
+- 视图态（`viewMode`）展示的值同样经过 `read`，不显示存储原值。
 - 不传 `converters` 时行为与现在完全一致，零回归。
 
 ## 非目标 / 反目标
@@ -215,20 +217,20 @@ headless 使用者继续用自己的 `onValuesChange`，不强制使用这个 AP
   - `applyFieldConverter(field, itemProps, ctx)` 合并 `getValueProps` / `getValueFromEvent`；
   - 无 converter 时原样返回 `itemProps`，保证零回归；
   - try/catch 包裹调用，失败回退原值。
-- `useFormSchema.ts`：在 widget 的 `applyConverter` 之后套业务 converter；`BoundField` 增加 `converter?: string` 便于调试；视图态取 `get(values, name)` 后先过 `toControl`。
+- `useFormSchema.ts`：在 widget 的 `applyConverter` 之后套业务 converter；`BoundField` 增加 `converter?: string` 便于调试；视图态取 `get(values, name)` 后先过 `read`。
 - `components/SchemaForm.tsx` / `SchemaFields.tsx`：新增 `converters` prop 并向下传；`SchemaForm` 从 rest 中解构掉，避免透传给 antd `<Form>`。
 - `core/validate.ts`：校验未知 id、`converter + valueType` 冲突。
 - `index.tsx`：导出 `FieldConverter`、`ConverterContext`。
 - README：增加 `converters` 用法与边界。
 
-实现细节：`getValueFromEvent` 收到的是控件原始事件参数，先提取控件值（优先沿用 widget 已有的提取逻辑，否则按 antd 默认规则取 `target.value` / `checked` / 首参），再交给 `toStore`。
+实现细节：`getValueFromEvent` 收到的是控件原始事件参数，先提取控件值（优先沿用 widget 已有的提取逻辑，否则按 antd 默认规则取 `target.value` / `checked` / 首参），再交给 `write`。
 
 ## 测试
 
 - `money`：初始 1999 → 控件 19.99；输入 20.5 → store 2050；`null` 透传。
 - `percent`：0.15 ↔ 15。
 - `json`：合法 JSON 字符串回显对象；对象写回字符串；坏字符串原样回显且不抛错。
-- 上下文读取：`currency` 变化后，本字段 `toControl` 结果随之变化。
+- 上下文读取：`currency` 变化后，本字段 `read` 结果随之变化。
 - 视图态：`viewMode` 下 span 显示转换后的值。
 - 优先级：`itemProps.getValueProps` 覆盖 converter；`converter + valueType` 报错；未知 id 报错。
 - 回归：不传 `converters` 时既有 128 条用例全过。
