@@ -57,6 +57,7 @@ export function useFormSchema(
       const fatal = found.find(
         (issue) =>
           issue.message.startsWith('unregistered widget ') ||
+          issue.message.startsWith('unregistered viewWidget ') ||
           issue.message.startsWith('unregistered converter '),
       );
       if (fatal) {
@@ -77,7 +78,7 @@ export function useFormSchema(
       : true);
     const def = resolveWidget(field.widget, options?.widgets);
     const converted = applyConverter(field, def, meta);
-    const isView = field.viewMode ?? meta.viewMode ?? false;
+    const isView = meta.viewMode === true ? true : (field.viewMode ?? false);
     const viewDef = isView
       ? resolveWidget(field.viewWidget ?? 'span', options?.widgets)
       : undefined;
@@ -100,7 +101,11 @@ export function useFormSchema(
     const storedValue = get(values, converted.name);
     const viewValue = readConvertedValue(storedValue, chain, converted, values, activeMeta);
     const renderProps = viewDef
-      ? { ...getControlProps(renderField), initialValue: viewValue }
+      ? {
+          ...getControlProps(renderField),
+          ...(converted.viewProps ?? {}),
+          initialValue: viewValue,
+        }
       : controlProps;
     // `options` would leak onto a native input's DOM; drop it in edit mode.
     // View widgets (e.g. ViewSpan) need options to resolve enum labels, so keep it there.
@@ -123,6 +128,8 @@ export function useFormSchema(
       required: field.required,
       disabled: converted.disabled,
       viewMode: isView,
+      viewSpan: converted.viewSpan,
+      viewProps: converted.viewProps,
       hidden: field.hidden,
       visible,
       itemProps: props,

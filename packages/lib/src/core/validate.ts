@@ -63,6 +63,27 @@ export function validateMeta(
       }
     }
 
+    if (typeof field.viewWidget === 'string') {
+      const registered = widgets && Object.prototype.hasOwnProperty.call(widgets, field.viewWidget);
+      if (!registered && !BUILTIN_WIDGET_IDS.includes(field.viewWidget)) {
+        issues.push({
+          level: 'error',
+          message: `unregistered viewWidget "${field.viewWidget}"`,
+          field: field.key,
+        });
+      }
+    }
+
+    if (field.viewSpan !== undefined) {
+      if (!Number.isInteger(field.viewSpan) || field.viewSpan < 1) {
+        issues.push({
+          level: 'warning',
+          message: 'viewSpan must be a positive integer',
+          field: field.key,
+        });
+      }
+    }
+
     if (field.options !== undefined && !Array.isArray(field.options)) {
       issues.push({ level: 'error', message: 'options must be an array', field: field.key });
     }

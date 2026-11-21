@@ -6,6 +6,7 @@ import type { FormClassNames } from '../widgets/class-names';
 import { mergeClasses, warnIneffectiveClassNames } from '../widgets/class-names';
 import { renderControl, renderLabel } from './slots';
 import type { FormSlots } from './slots';
+import SchemaView from './SchemaView';
 import { useFormSchema } from '../useFormSchema';
 import { useResolvedMeta } from './use-resolved-meta';
 import type { FieldConverter, FormSchema, Presets, WidgetDef } from '../core/types';
@@ -60,6 +61,17 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
   if (pending) return loading === undefined ? <Spin /> : loading;
   if (resolvedError) return error === undefined ? null : error;
   if (classNames?.form) warnIneffectiveClassNames(classNames.form);
+
+  if (resolved!.viewMode) {
+    return (
+      <SchemaView
+        fields={renderableFields}
+        view={resolved!.view}
+        slots={slots}
+        classNames={classNames}
+      />
+    );
+  }
 
   return (
     <>

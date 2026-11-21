@@ -21,6 +21,18 @@ export interface NormalizedOption {
   key?: any;
 }
 
+/** Descriptions config used only when the form is in view mode. */
+export interface ViewConfig {
+  title?: ReactNode;
+  extra?: ReactNode;
+  column?: number;
+  bordered?: boolean;
+  size?: 'default' | 'middle' | 'small';
+  layout?: 'horizontal' | 'vertical';
+  colon?: boolean;
+  className?: string;
+}
+
 /** Field contract: no layout or style keys. */
 export interface FieldSchema {
   /** Unique id; without explicit name, split on '.' into a NamePath. */
@@ -31,6 +43,10 @@ export interface FieldSchema {
   widget?: Widget;
   /** View-mode widget, defaults to 'span' (read-only text). */
   viewWidget?: Widget;
+  /** Props passed to the view widget only; wins over widgetProps in view mode. */
+  viewProps?: Record<string, any>;
+  /** Descriptions.Item span in view mode. */
+  viewSpan?: number;
   /** Props passed to the widget, e.g. { mode: 'multiple' }. */
   widgetProps?: Record<string, any>;
   label?: ReactNode;
@@ -90,6 +106,8 @@ export interface FormSchema {
   name?: string;
   version?: string;
   viewMode?: boolean;
+  /** Descriptions layout used when viewMode is true. */
+  view?: ViewConfig;
   disabled?: boolean;
   /** Whole-values transform applied before onFinish in SchemaForm. */
   normalizeValues?: (values: Record<string, any>) => Record<string, any>;
@@ -194,6 +212,10 @@ export interface BoundField {
   options?: NormalizedOption[];
   required?: boolean;
   viewMode: boolean;
+  /** Descriptions.Item span in view mode. */
+  viewSpan?: number;
+  /** View-only widget props. */
+  viewProps?: Record<string, any>;
   hidden?: boolean;
   disabled?: boolean;
   /** Field-level initialValue as passthrough data; the hook never seeds form state with it. */
