@@ -1,7 +1,7 @@
 # Preset 字段对象化设计（widget + 控件属性）
 
 日期：2026-11-21
-状态：待评审
+状态：已批准（用户确认，2026-11-21）
 关系：扩展 `2026-11-21-key-presets-design.md` 中 `fields` 的值类型，不改变 label 规则、locale 回退和「presets 不创建字段」原则。
 
 ## 意图
