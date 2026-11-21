@@ -77,6 +77,34 @@ pnpm add @jswork/antd-form-schema
   export default App;
   ```
 
+## field converters
+A converter adapts one field between its stored value and its control value. Register converters once and reference them by id in the schema; the field keeps its own key and nothing else changes.
+
+```tsx
+import { SchemaForm } from '@jswork/antd-form-schema';
+import type { FieldConverter, FormSchema } from '@jswork/antd-form-schema';
+
+/** cents in storage <-> yuan in the control */
+const money: FieldConverter = {
+  read: (value) => (value == null ? value : Number(value) / 100),
+  write: (value) => (value == null ? value : Math.round(Number(value) * 100)),
+};
+
+const meta: FormSchema = {
+  initialValues: { price: 1999 },
+  fields: [{ key: 'price', label: 'Price', widget: 'number', converter: 'money' }],
+};
+
+<SchemaForm meta={meta} converters={{ money }} />;
+```
+
+- `read(value, ctx)` maps the stored value to the control value; it only runs for display and view mode.
+- `write(value, ctx)` maps the control value back to the stored value.
+- `ctx` is `{ field, values, meta }`. Read the whole form through `values`, but never write other fields from a converter.
+- A converter cannot be combined with `valueType`; omit it for zero behavior change.
+- An unregistered converter id is a fatal error. Throwing inside a converter falls back to the raw value and warns in dev.
+- Fields without a converter are untouched; `getValueProps` / `getValueFromEvent` set directly on the field still win.
+
 ## license
 Code released under [the MIT license](https://github.com/afeiship/antd-form-schema/blob/main/LICENSE.txt).
 
