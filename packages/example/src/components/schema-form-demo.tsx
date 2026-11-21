@@ -26,7 +26,7 @@ export default function SchemaFormDemo() {
           colon={false}
           meta={basicMeta}
           classNames={classNames}
-          onFinish={(values) => message.success(`Submitted: ${JSON.stringify(values)}`)}>
+          onFinish={(values) => console.log(`Submitted values:`, values)}>
           <div className="col-span-full mt-6 flex justify-end">
             <Button htmlType="submit" type="primary">
               Submit
