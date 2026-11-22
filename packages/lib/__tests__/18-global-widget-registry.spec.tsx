@@ -64,6 +64,47 @@ describe('global widget registry', () => {
     expect(captured.value).toBe('wuhan');
   });
 
+  it('forwards normalized options to a registered custom component in edit mode', () => {
+    configureSchemaForm({ widgets: { 'city-selector': CitySelector } });
+
+    const meta: FormSchema = {
+      fields: [
+        {
+          key: 'city',
+          widget: 'city-selector',
+          options: [
+            ['wuhan', '武汉'],
+            ['beijing', '北京'],
+          ],
+        },
+      ],
+    };
+    render(
+      <SchemaForm meta={meta}>
+        <button type="submit">go</button>
+      </SchemaForm>,
+    );
+
+    expect(captured.options).toEqual([
+      { value: 'wuhan', label: '武汉' },
+      { value: 'beijing', label: '北京' },
+    ]);
+  });
+
+  it('strips options from builtin native inputs in edit mode', () => {
+    const meta: FormSchema = {
+      fields: [{ key: 'name', widget: 'input', options: [['a', 'A']] }],
+    };
+    render(
+      <SchemaForm meta={meta}>
+        <button type="submit">go</button>
+      </SchemaForm>,
+    );
+    const input = document.querySelector('input') as HTMLInputElement;
+    expect(input).toBeTruthy();
+    expect(input.getAttribute('options')).toBeNull();
+  });
+
   it('applies metaConverter from a global definition object (valuePropName checked)', () => {
     configureSchemaForm({
       widgets: {

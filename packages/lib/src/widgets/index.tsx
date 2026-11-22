@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { createElement } from 'react';
 import type { FC, ReactNode } from 'react';
 import { normalizeOptions } from '../core/utils';
+import { BUILTIN_WIDGET_IDS } from './widget-ids';
 import type {
   FieldSchema,
   FormSchema,
@@ -170,6 +171,20 @@ export function resolveWidget(
   if (widget === undefined) return WIDGETS.input;
   if (typeof widget !== 'string') return { component: widget as WidgetDef['component'] };
   return local?.[widget] ?? WIDGETS[widget] ?? WIDGETS.input;
+}
+
+/**
+ * Whether a string id resolves from the builtin table (not a local/global registration).
+ * Direct components are always custom. Builtin native inputs must not receive `options`
+ * on their DOM; custom components receive `options` as a normal prop.
+ */
+export function isBuiltinWidgetId(
+  id: string | undefined,
+  local?: Record<string, WidgetDef>,
+): boolean {
+  if (id === undefined) return true;
+  if (local && Object.prototype.hasOwnProperty.call(local, id)) return false;
+  return BUILTIN_WIDGET_IDS.includes(id);
 }
 
 /** Apply a widget's metadata converter, shallow-merging widgetProps. */

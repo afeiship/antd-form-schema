@@ -8,7 +8,7 @@ import { normalizeMeta } from './core/normalize';
 import { applyPresets } from './core/presets';
 import { get } from './core/utils';
 import { validateMeta } from './core/validate';
-import { applyConverter, mergeWidgets, resolveWidget } from './widgets';
+import { applyConverter, isBuiltinWidgetId, mergeWidgets, resolveWidget } from './widgets';
 import type {
   BoundField,
   FormInstance,
@@ -114,11 +114,16 @@ export function useFormSchema(
           initialValue: viewValue,
         }
       : controlProps;
-    // `options` would leak onto a native input's DOM; drop it in edit mode.
-    // View widgets (e.g. ViewSpan) need options to resolve enum labels, so keep it there.
+    // Builtin native inputs must not receive `options` on their DOM; strip it in edit mode.
+    // Custom / registered components receive `options` as a normal prop. View widgets keep
+    // options to resolve enum labels (e.g. ViewSpan).
+    const widgetId = typeof field.widget === 'string' ? field.widget : undefined;
+    const builtin = isBuiltinWidgetId(widgetId, widgets);
     const elementProps = viewDef
       ? renderProps
-      : (({ options: _options, ...rest }) => rest)(renderProps);
+      : builtin
+        ? (({ options: _options, ...rest }) => rest)(renderProps)
+        : renderProps;
     const control = createElement(WidgetComponent, elementProps);
 
     return {
