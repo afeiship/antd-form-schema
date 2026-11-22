@@ -8,7 +8,7 @@ import { normalizeMeta } from './core/normalize';
 import { applyPresets } from './core/presets';
 import { get } from './core/utils';
 import { validateMeta } from './core/validate';
-import { applyConverter, resolveWidget, WIDGETS } from './widgets';
+import { applyConverter, mergeWidgets, resolveWidget } from './widgets';
 import type {
   BoundField,
   FormInstance,
@@ -28,7 +28,10 @@ export function useFormSchema(
   options?: UseFormSchemaOptions,
 ): UseFormSchemaResult {
   const validate = options?.validate;
-  const widgets = options?.widgets;
+  const widgets = useMemo(
+    () => mergeWidgets(getSchemaFormDefaults().widgets, options?.widgets),
+    [options?.widgets],
+  );
   const presets = useMemo(
     () => mergePresets(getSchemaFormDefaults().presets, options?.presets),
     [options?.presets],
@@ -49,8 +52,7 @@ export function useFormSchema(
   const issues: Issue[] = useMemo(() => {
     const found: Issue[] = [];
     if (validate !== false && isDev) {
-      const mergedWidgets = { ...WIDGETS, ...widgets };
-      found.push(...validateMeta(activeMeta, mergedWidgets, converters));
+      found.push(...validateMeta(activeMeta, widgets, converters));
       for (const issue of found) {
         console.warn(issue.message);
       }
@@ -76,11 +78,11 @@ export function useFormSchema(
     const visible = !field.hidden && (field.condition
       ? evaluateCondition(field.condition, { form, values })
       : true);
-    const def = resolveWidget(field.widget, options?.widgets);
+    const def = resolveWidget(field.widget, widgets);
     const converted = applyConverter(field, def, meta);
     const isView = meta.viewMode === true ? true : (field.viewMode ?? false);
     const viewDef = isView
-      ? resolveWidget(field.viewWidget ?? 'span', options?.widgets)
+      ? resolveWidget(field.viewWidget ?? 'span', widgets)
       : undefined;
     const renderField = viewDef ? applyConverter(converted, viewDef, meta) : converted;
     const WidgetComponent = viewDef ? viewDef.component : def.component;

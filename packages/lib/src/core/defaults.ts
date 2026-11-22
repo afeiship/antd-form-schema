@@ -8,6 +8,7 @@ export function configureSchemaForm(defaults: SchemaFormDefaults): void {
   if (defaults.presets !== undefined) next.presets = defaults.presets;
   if (defaults.converters !== undefined) next.converters = defaults.converters;
   if (defaults.locale !== undefined) next.locale = defaults.locale;
+  if (defaults.widgets !== undefined) next.widgets = defaults.widgets;
   globalDefaults = next;
 }
 

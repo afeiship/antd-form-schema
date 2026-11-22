@@ -9,12 +9,12 @@ import type { FormSlots } from './slots';
 import SchemaView from './SchemaView';
 import { useFormSchema } from '../useFormSchema';
 import { useResolvedMeta } from './use-resolved-meta';
-import type { FieldConverter, FormSchema, Presets, WidgetDef } from '../core/types';
+import type { FieldConverter, FormSchema, Presets, WidgetInput } from '../core/types';
 
 export interface SchemaFieldsProps {
   /** Sync schema, or a promise resolving to one (placeholders render until resolve). */
   meta: FormSchema | Promise<FormSchema>;
-  widgets?: Record<string, WidgetDef>;
+  widgets?: Record<string, WidgetInput>;
   classNames?: FormClassNames;
   slots?: FormSlots;
   /** Per-key presets: widget and locale-aware label. */
