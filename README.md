@@ -177,20 +177,10 @@ Register project-specific components once at the entry; schemas reference them b
 
 ```ts
 import { configureSchemaForm } from '@jswork/antd-form-schema';
-import { CitySelector, TagInput } from './components';
+import { globalWidgets } from './form-widgets';
 
 configureSchemaForm({
-  widgets: {
-    // shorthand: bare component → { component: CitySelector }
-    'city-selector': CitySelector,
-    // definition object: component + optional metaConverter
-    'tag-input': {
-      component: TagInput,
-      metaConverter: ({ field }) => ({
-        widgetProps: { max: 5, ...field.widgetProps },
-      }),
-    },
-  },
+  widgets: globalWidgets,
 });
 ```
 

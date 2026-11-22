@@ -1,7 +1,6 @@
 import { configureSchemaForm } from '@jswork/antd-form-schema';
 import type { FieldConverter, Presets } from '@jswork/antd-form-schema';
-import { CitySelector } from './components/CitySelector';
-import { TagInput } from './components/TagInput';
+import { globalWidgets } from './form-widgets';
 
 /** Project-wide field dictionary: schema only writes the semantic key. */
 export const globalPresets: Presets = {
@@ -40,18 +39,6 @@ const ratio: FieldConverter = {
 };
 
 export const globalConverters = { money, ratio };
-
-export const globalWidgets = {
-  // 简写：裸组件，归一化为 { component: CitySelector }
-  'city-selector': CitySelector,
-  // 定义对象：组件 + 可选 metaConverter
-  'tag-input': {
-    component: TagInput,
-    metaConverter: ({ field }) => ({
-      widgetProps: { max: 5, ...field.widgetProps },
-    }),
-  },
-};
 
 configureSchemaForm({
   locale: 'zh-CN',

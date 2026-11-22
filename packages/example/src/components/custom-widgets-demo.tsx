@@ -4,7 +4,7 @@ import { SchemaForm } from '@jswork/antd-form-schema';
 import type { FormSchema } from '@jswork/antd-form-schema';
 
 const meta: FormSchema = {
-  initialValues: { city: 'wuhan', tags: ['React'] },
+  initialValues: { city: 'wuhan', tags: ['React'], score: 4.5, flag: true },
   fields: [
     {
       key: 'city',
@@ -24,6 +24,13 @@ const meta: FormSchema = {
       widgetProps: { max: 6 },
       placeholder: '输入标签后回车',
     },
+    {
+      key: 'score',
+      label: '评分',
+      widget: 'rate-score',
+      widgetProps: { allowHalf: true },
+    },
+    { key: 'flag', label: '启用', widget: 'flag-switch' },
   ],
 };
 
@@ -34,9 +41,9 @@ export default function CustomWidgetsDemo() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-gray-500">
-        自定义组件在项目入口通过 <code>configureSchemaForm</code> 注册，schema 只写字符串 id：
-        <code>city-selector</code> 为裸组件简写，<code>tag-input</code> 为带 <code>metaConverter</code>
-        的定义对象。
+        自定义组件在 <code>form-widgets</code> 注册表统一注册，schema 只写字符串 id：
+        <code>city-selector</code> 为裸组件简写，<code>tag-input</code> / <code>rate-score</code> /{' '}
+        <code>flag-switch</code> 为带 <code>metaConverter</code> 的定义对象。
       </p>
 
       <SchemaForm
