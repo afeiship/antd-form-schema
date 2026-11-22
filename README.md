@@ -171,6 +171,47 @@ configureSchemaForm({
 - `getSchemaFormDefaults()` returns a snapshot; `resetSchemaFormDefaults()` clears everything (useful in tests and HMR).
 - The config is module-level state. SSR multi-tenant apps should use per-form props instead.
 
+## custom widgets
+
+Register project-specific components once at the entry; schemas reference them by string id.
+
+```ts
+import { configureSchemaForm } from '@jswork/antd-form-schema';
+import { CitySelector, TagInput } from './components';
+
+configureSchemaForm({
+  widgets: {
+    // shorthand: bare component → { component: CitySelector }
+    'city-selector': CitySelector,
+    // definition object: component + optional metaConverter
+    'tag-input': {
+      component: TagInput,
+      metaConverter: ({ field }) => ({
+        widgetProps: { max: 5, ...field.widgetProps },
+      }),
+    },
+  },
+});
+```
+
+```tsx
+const meta: FormSchema = {
+  fields: [
+    { key: 'city', widget: 'city-selector', placeholder: '请选择城市' },
+    { key: 'tags', widget: 'tag-input', widgetProps: { max: 8 } },
+  ],
+};
+
+<SchemaForm meta={meta} />;
+```
+
+- A registry entry is either a bare component (shorthand) or `{ component, metaConverter? }`; the two shapes may be mixed.
+- Precedence: form-level `widgets[id]` → global default `widgets[id]` → builtin `WIDGETS[id]` → fallback `input`. Form-level overrides per id; other global ids stay available.
+- Registered components receive the `Form.Item` value binding (`value` / `onChange`) plus derived props (`options`, `placeholder`, `disabled`, `readOnly`, `...widgetProps`); type them with `WidgetComponentProps`.
+- `viewWidget` string ids resolve through the same merged registry.
+- `metaConverter` merges `widgetProps` and may declare `valuePropName` (e.g. `checked` for switches / checkboxes).
+- Global config must be set before mounting; call `resetSchemaFormDefaults()` in tests to isolate the registry.
+
 ## custom widget values
 Custom widgets can call `onChange` with either the value itself or an event-like `{ target: { value } }`. Ant Design's `Form.Item` already unwraps the latter, so no per-widget adapter is needed:
 

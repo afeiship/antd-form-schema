@@ -4,6 +4,7 @@ import PresetsDemo from './components/presets-demo';
 import DetailEditDemo from './components/detail-edit-demo';
 import ConvertersDemo from './components/converters-demo';
 import GlobalDefaultsDemo from './components/global-defaults-demo';
+import CustomWidgetsDemo from './components/custom-widgets-demo';
 
 const demos = [
   { key: 'schema-form', title: 'Schema Form', Component: SchemaFormDemo },
@@ -11,6 +12,7 @@ const demos = [
   { key: 'detail-edit', title: 'Detail → Edit', Component: DetailEditDemo },
   { key: 'converters', title: 'Field Converters', Component: ConvertersDemo },
   { key: 'global-defaults', title: 'Global Defaults', Component: GlobalDefaultsDemo },
+  { key: 'custom-widgets', title: 'Custom Widgets', Component: CustomWidgetsDemo },
 ];
 
 function App() {
