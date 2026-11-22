@@ -153,6 +153,21 @@ export interface WidgetDef {
   metaConverter?: (ctx: { field: FieldSchema; meta: FormSchema }) => Partial<FieldSchema>;
 }
 
+/** Registry entry: a bare component shorthand, or a widget definition with an optional metaConverter. */
+export type WidgetInput = WidgetDef | ComponentType<any>;
+
+/** Props a registered widget component receives: Form.Item value binding + derived control props. */
+export interface WidgetComponentProps {
+  value?: any;
+  onChange?: (value: any) => void;
+  options?: NormalizedOption[];
+  placeholder?: string;
+  disabled?: boolean;
+  readOnly?: boolean;
+  /** Extra props merged from field.widgetProps and preset shorthand props. */
+  [prop: string]: any;
+}
+
 /** Preset entry for one key: widget id shorthand, or an object carrying widget props. */
 export interface PresetFieldObject {
   /** Widget id or component. */
@@ -182,11 +197,13 @@ export interface SchemaFormDefaults {
   converters?: Record<string, FieldConverter>;
   /** Default locale; form-level locale wins, final fallback is zh-CN. */
   locale?: string;
+  /** Default widget registry; merged per id with form-level widgets, form-level wins. */
+  widgets?: Record<string, WidgetInput>;
 }
 
 export interface UseFormSchemaOptions {
   /** Local widget registrations / overrides, taking precedence over builtin widgets. */
-  widgets?: Record<string, WidgetDef>;
+  widgets?: Record<string, WidgetInput>;
   /** Meta validation switch, enabled in development by default. */
   validate?: boolean;
   /** Per-key presets: widget and locale-aware label. */

@@ -10,6 +10,7 @@ import type {
   NormalizedOption,
   Widget,
   WidgetDef,
+  WidgetInput,
 } from '../core/types';
 
 type Converter = Required<WidgetDef>['metaConverter'];
@@ -139,6 +140,27 @@ export const WIDGETS: Record<string, WidgetDef> = {
   select: { component: Select, metaConverter: selectConverter },
   span: { component: ViewSpan },
 };
+
+/** Normalize a registry entry: bare component → { component }, definition object passes through. */
+export function normalizeWidgetDef(entry: WidgetInput): WidgetDef {
+  if (typeof entry === 'function') return { component: entry };
+  return entry;
+}
+
+/** Merge global and local registries per id; local wins. Entries are normalized to WidgetDef. */
+export function mergeWidgets(
+  global?: Record<string, WidgetInput>,
+  local?: Record<string, WidgetInput>,
+): Record<string, WidgetDef> {
+  const merged: Record<string, WidgetDef> = {};
+  if (global) {
+    for (const [id, entry] of Object.entries(global)) merged[id] = normalizeWidgetDef(entry);
+  }
+  if (local) {
+    for (const [id, entry] of Object.entries(local)) merged[id] = normalizeWidgetDef(entry);
+  }
+  return merged;
+}
 
 /** Resolve a widget id (or component) with local overrides taking precedence. */
 export function resolveWidget(
