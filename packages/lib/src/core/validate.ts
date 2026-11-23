@@ -1,5 +1,5 @@
-import { getConditionPaths } from '../core/condition';
-import { resolveName, toNamePath } from '../core/utils';
+import { getConditionPaths } from './condition';
+import { resolveName, toNamePath } from './utils';
 import { BUILTIN_WIDGET_IDS } from '../widgets/widget-ids';
 import { normalizeConverterIds } from './converters';
 import type {
