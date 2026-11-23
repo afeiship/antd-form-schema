@@ -2,8 +2,8 @@ import { Descriptions, Form } from 'antd';
 import type { DescriptionsProps } from 'antd';
 import { cloneElement, isValidElement } from 'react';
 import type { ReactElement, ReactNode } from 'react';
+import cx from 'classnames';
 import { renderSlot } from '@jswork/react-list';
-import { mergeClasses } from '../widgets/class-names';
 import type { FormClassNames } from '../widgets/class-names';
 import { renderControl, renderLabel } from './slots';
 import type { FormSlots } from './slots';
@@ -26,7 +26,7 @@ const DEFAULT_VIEW: Required<Pick<ViewConfig, 'column' | 'bordered' | 'size'>> =
 function withClassName(node: ReactNode, className?: string): ReactNode {
   if (!className || !isValidElement(node)) return node;
   const element = node as ReactElement<any>;
-  return cloneElement(element, { className: mergeClasses(element.props.className, className) });
+  return cloneElement(element, { className: cx(element.props.className, className) });
 }
 
 /** Descriptions-based view renderer: visible fields become items, hidden fields stay as Form.Items. */
@@ -69,7 +69,7 @@ export function SchemaView({ fields, view, slots, classNames }: SchemaViewProps)
               key={field.key}
               label={labelNode}
               span={field.viewSpan}
-              className={mergeClasses(classNames?.field, field.className)}
+              className={cx(classNames?.field, field.className)}
             >
               {contentNode}
             </Descriptions.Item>

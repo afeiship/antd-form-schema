@@ -12,12 +12,6 @@ export interface FormClassNames {
   control?: string;
 }
 
-/** Merge class strings without duplicates or stray whitespace. */
-export function mergeClasses(...values: Array<string | undefined>): string | undefined {
-  const merged = values.filter(Boolean).join(' ').trim();
-  return merged || undefined;
-}
-
 /** Warn once per component instance when a classNames key has nowhere to apply. */
 export function warnIneffectiveClassNames(form?: string): void {
   if (form) console.warn('classNames.form is ineffective on SchemaFields (no Form element).');

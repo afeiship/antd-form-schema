@@ -3,12 +3,13 @@ import { Form, Spin } from 'antd';
 import { cloneElement, isValidElement } from 'react';
 import type { FC, ReactElement, ReactNode } from 'react';
 import type { FormClassNames } from '../widgets/class-names';
-import { mergeClasses, warnIneffectiveClassNames } from '../widgets/class-names';
+import cx from 'classnames';
 import { renderControl, renderLabel } from './slots';
 import type { FormSlots } from './slots';
 import SchemaView from './SchemaView';
 import { useFormSchema } from '../useFormSchema';
 import { useResolvedMeta } from './use-resolved-meta';
+import { warnIneffectiveClassNames } from '../widgets/class-names';
 import type { FieldConverter, FormSchema, Presets, WidgetInput } from '../core/types';
 
 export interface SchemaFieldsProps {
@@ -33,7 +34,7 @@ export interface SchemaFieldsProps {
 function withClassName(node: ReactNode, className: string): ReactNode {
   if (!isValidElement(node)) return node;
   const element = node as ReactElement<any>;
-  return cloneElement(element, { className: mergeClasses(element.props.className, className) });
+  return cloneElement(element, { className: cx(element.props.className, className) });
 }
 
 /** Field renderer: delegates label/required/error to antd Form.Item. */
@@ -87,7 +88,7 @@ const SchemaFields: FC<SchemaFieldsProps> = ({
         const control = slots?.control
           ? renderSlot(slots.control, { field, control: field.control }, field.key + '-control')
           : renderControl({ field, control: field.control });
-        const controlClass = mergeClasses(classNames?.control, field.className);
+        const controlClass = cx(classNames?.control, field.className);
         const finalControl = controlClass ? withClassName(control, controlClass) : control;
         const item = field.hidden ? (
           <Form.Item {...field.itemProps} key={field.key} hidden>
